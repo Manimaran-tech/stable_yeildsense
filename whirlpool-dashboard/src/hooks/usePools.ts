@@ -1,5 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../api';
+
+// Import realtime context - will be available after App.tsx wraps with RealtimeProvider
+let useRealtime: () => { lastPoolUpdate: number } | null = () => null;
+try {
+    const context = require('../context/RealtimeContext');
+    useRealtime = context.useRealtime;
+} catch {
+    // Context not available yet
+}
 
 export interface PoolData {
     address: string;
@@ -70,57 +79,86 @@ export const usePools = () => {
         tickSpacing: 64
     })));
     const [loading, setLoading] = useState(true);
+    const lastFetchRef = useRef<number>(0);
 
-    useEffect(() => {
-        const fetchPools = async () => {
-            setLoading(true);
+    // Try to get realtime context
+    let lastPoolUpdate = 0;
+    try {
+        const realtimeContext = useRealtime();
+        if (realtimeContext) {
+            lastPoolUpdate = realtimeContext.lastPoolUpdate;
+        }
+    } catch {
+        // Context not available
+    }
 
+    const fetchPools = useCallback(async () => {
+        // Debounce - don't fetch if we fetched less than 5 seconds ago
+        const now = Date.now();
+        if (now - lastFetchRef.current < 5000) {
+            return;
+        }
+        lastFetchRef.current = now;
+
+        setLoading(true);
+
+        try {
+
+
+            // Batch fetch all pools in one request
             try {
-                // Fetch from backend
+                const addresses = POPULAR_POOLS.map(p => p.address);
+                const results = await api.getPools(addresses);
+
                 const fetchedPools: PoolData[] = [];
 
-                for (const poolInfo of POPULAR_POOLS) {
-                    try {
-                        // Use backend API
-                        const data = await api.getPool(poolInfo.address);
+                results.forEach((data, index) => {
+                    if (!data) return;
 
-                        // Parse price - backend returns string
-                        const price = parseFloat(data.price);
+                    const poolInfo = POPULAR_POOLS[index];
+                    const price = parseFloat(data.price);
 
-                        fetchedPools.push({
-                            address: poolInfo.address,
-                            tokenA: poolInfo.tokenA,
-                            tokenB: poolInfo.tokenB,
-                            liquidity: formatLiquidity(data.liquidity),
-                            price: `$${price.toFixed(4)}`,
-                            feeTier: poolInfo.feeTier,
-                            tickSpacing: data.tickSpacing
-                        });
-                    } catch (e) {
-                        console.error(`Failed to fetch pool ${poolInfo.address}:`, e);
-                    }
-                }
+                    fetchedPools.push({
+                        address: poolInfo.address,
+                        tokenA: poolInfo.tokenA,
+                        tokenB: poolInfo.tokenB,
+                        liquidity: formatLiquidity(data.liquidity),
+                        price: `$${price.toFixed(4)}`,
+                        feeTier: poolInfo.feeTier,
+                        tickSpacing: data.tickSpacing
+                    });
+                });
 
                 if (fetchedPools.length > 0) {
                     setPools(fetchedPools);
                 } else {
-                    // Fallback to error state if all failed
                     setPools(prev => prev.map(p => ({ ...p, price: "Unavailable" })));
                 }
-
             } catch (error) {
-                console.error("usePools: Error fetching pools:", error);
-            } finally {
-                setLoading(false);
+                console.error("usePools: Error fetching pools batch:", error);
+                setPools(prev => prev.map(p => ({ ...p, price: "Error" })));
             }
-        };
 
-        fetchPools();
-
-        // Refresh every 60 seconds (1 minute)
-        const interval = setInterval(fetchPools, 60000);
-        return () => clearInterval(interval);
+        } catch (error) {
+            console.error("usePools: Error fetching pools:", error);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    // Initial fetch on mount
+    useEffect(() => {
+        fetchPools();
+    }, [fetchPools]);
+
+    // Refresh when WebSocket triggers an update
+    useEffect(() => {
+        if (lastPoolUpdate > 0) {
+            console.log("usePools: WebSocket triggered refresh");
+            lastFetchRef.current = 0; // Reset debounce for WS updates
+            fetchPools();
+        }
+    }, [lastPoolUpdate, fetchPools]);
 
     return { pools, loading };
 };

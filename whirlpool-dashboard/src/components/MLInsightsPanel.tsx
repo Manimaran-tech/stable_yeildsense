@@ -209,15 +209,29 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
                 // Check ML API health first
                 await mlApi.healthCheck();
 
-                // Get quick analysis
+                // Get quick analysis with real-time prices
+                // Match prices to ML tokens by comparing mapped tokens to original tokens (case-insensitive)
+                const isTokenAMappedFirst = tokenMapping.mlTokenA === tokenA.toLowerCase();
+                const priceForMLTokenA = isTokenAMappedFirst ? currentPriceA : currentPriceB;
+                const priceForMLTokenB = isTokenAMappedFirst ? currentPriceB : currentPriceA;
+
+                console.log(`MLInsightsPanel: Passing prices to API - ${tokenMapping.mlTokenA}: $${priceForMLTokenA}, ${tokenMapping.mlTokenB}: $${priceForMLTokenB}`);
+
                 const result = await mlApi.getQuickAnalysis(
                     tokenMapping.mlTokenA!,
                     tokenMapping.mlTokenB!,
-                    tokenMapping.mlTokenA === tokenA.toLowerCase() ? currentPriceA : currentPriceB,
-                    tokenMapping.mlTokenB === tokenB.toLowerCase() ? currentPriceB : currentPriceA
+                    priceForMLTokenA,
+                    priceForMLTokenB
                 );
 
                 setAnalysis(result);
+
+                // Debug: Log ML API response to trace safety score mismatch
+                console.log('ML API Response:', {
+                    token_a: { symbol: result.token_a.symbol, safety_score: result.token_a.safety_score, price: result.token_a.current_price, range: `${result.token_a.lower_bound} - ${result.token_a.upper_bound}` },
+                    token_b: { symbol: result.token_b.symbol, safety_score: result.token_b.safety_score, price: result.token_b.current_price, range: `${result.token_b.lower_bound} - ${result.token_b.upper_bound}` },
+                    overall_safety_score: result.overall.safety_score
+                });
 
                 // Determine which token's range to use for yield farming
                 // Priority: Show the ALTCOIN (not SOL, not stablecoin)

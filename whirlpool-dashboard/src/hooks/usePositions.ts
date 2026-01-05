@@ -1,6 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { api } from '../api';
+
+// Import realtime context - will be available after App.tsx wraps with RealtimeProvider
+let useRealtime: () => { lastPositionUpdate: number } | null = () => null;
+try {
+    // Dynamic import to avoid circular dependency during initial load
+    const context = require('../context/RealtimeContext');
+    useRealtime = context.useRealtime;
+} catch {
+    // Context not available yet, will use fallback
+}
 
 export interface PositionData {
     address: string;
@@ -24,17 +34,34 @@ export interface PositionData {
 
 export const usePositions = () => {
     const { publicKey } = useWallet();
-    // Removed direct whirlpool client usage
-    // const { client } = useWhirlpoolClient(); 
     const [positions, setPositions] = useState<PositionData[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const lastFetchRef = useRef<number>(0);
+
+    // Try to get realtime context (may not be available during initial render)
+    let lastPositionUpdate = 0;
+    try {
+        const realtimeContext = useRealtime();
+        if (realtimeContext) {
+            lastPositionUpdate = realtimeContext.lastPositionUpdate;
+        }
+    } catch {
+        // Context not available, ignore
+    }
 
     const fetchPositions = useCallback(async () => {
         if (!publicKey) {
             setPositions([]);
             return;
         }
+
+        // Debounce - don't fetch if we fetched less than 2 seconds ago
+        const now = Date.now();
+        if (now - lastFetchRef.current < 2000) {
+            return;
+        }
+        lastFetchRef.current = now;
 
         setLoading(true);
         setError(null);
@@ -43,9 +70,6 @@ export const usePositions = () => {
             console.log("usePositions: Fetching positions from backend for wallet:", publicKey.toString());
             const data = await api.getPositions(publicKey.toString());
 
-            // Map backend data to frontend interface
-            // Backend now returns pre-calculated prices and ranges
-            // Check if data is array
             if (!Array.isArray(data)) {
                 console.error("usePositions: API returned non-array data:", data);
                 setError("Invalid data from server");
@@ -83,15 +107,21 @@ export const usePositions = () => {
         }
     }, [publicKey]);
 
+    // Initial fetch on mount
     useEffect(() => {
         fetchPositions();
-
-        // Refresh every 60 seconds
-        const interval = setInterval(fetchPositions, 60000);
-        return () => clearInterval(interval);
     }, [fetchPositions]);
 
+    // Refresh when WebSocket triggers an update
+    useEffect(() => {
+        if (lastPositionUpdate > 0) {
+            console.log("usePositions: WebSocket triggered refresh");
+            fetchPositions();
+        }
+    }, [lastPositionUpdate, fetchPositions]);
+
     const refresh = useCallback(() => {
+        lastFetchRef.current = 0; // Reset debounce
         fetchPositions();
     }, [fetchPositions]);
 

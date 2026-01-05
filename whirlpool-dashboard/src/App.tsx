@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { WalletContextProvider } from './providers/WalletContextProvider';
+import { RealtimeProvider } from './context/RealtimeContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -24,17 +25,19 @@ function App() {
         <ErrorBoundary>
             <BrowserRouter>
                 <WalletContextProvider>
-                    <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20">
-                        <Navbar />
-                        <main className="container mx-auto px-4 py-8 pb-24">
-                            <Suspense fallback={<LoadingFallback />}>
-                                <Routes>
-                                    <Route path="/" element={<Dashboard />} />
-                                    <Route path="/trade" element={<TradingPage />} />
-                                </Routes>
-                            </Suspense>
-                        </main>
-                    </div>
+                    <RealtimeProvider>
+                        <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20">
+                            <Navbar />
+                            <main className="container mx-auto px-4 py-8 pb-24">
+                                <Suspense fallback={<LoadingFallback />}>
+                                    <Routes>
+                                        <Route path="/" element={<Dashboard />} />
+                                        <Route path="/trade" element={<TradingPage />} />
+                                    </Routes>
+                                </Suspense>
+                            </main>
+                        </div>
+                    </RealtimeProvider>
                 </WalletContextProvider>
             </BrowserRouter>
         </ErrorBoundary>

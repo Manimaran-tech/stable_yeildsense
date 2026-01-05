@@ -59,6 +59,16 @@ COINGECKO_IDS = {
     'jup': 'jupiter-exchange-solana'
 }
 
+# DexScreener Token Addresses (Solana) - Primary price source
+TOKEN_ADDRESSES = {
+    'sol': 'So11111111111111111111111111111111111111112',
+    'jup': 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
+    'usdc': 'EPjFWdd5Aufq7p37L39626969696969696969696969',
+    'usdt': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8En2vBY',
+    'jupsol': 'jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v',
+    'pengu': '2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv'
+}
+
 
 def replace_nan(obj):
     """Recursively replace NaN/Infinity with None for JSON serialization."""
@@ -126,23 +136,98 @@ def get_bounds_calculator():
 
 
 def fetch_real_price(token: str) -> float:
-    """Fetch real-time price from CoinGecko."""
+    """
+    Fetch real-time price with multiple fallbacks.
+    Priority: DexScreener -> CoinGecko -> Jupiter -> default
+    """
     token = token.lower()
-    coin_id = COINGECKO_IDS.get(token)
     
-    if not coin_id:
-        return 0.0
-    
+    # 1. Try DexScreener (Solana native, fast, less rate limits)
     try:
-        url = "https://api.coingecko.com/api/v3/simple/price"
-        params = {"ids": coin_id, "vs_currencies": "usd"}
-        response = requests.get(url, params=params, timeout=10)
+        address = TOKEN_ADDRESSES.get(token)
+        search_queries = []
+        if address:
+            search_queries.append(f"https://api.dexscreener.com/latest/dex/search?q={address}")
+        search_queries.append(f"https://api.dexscreener.com/latest/dex/search?q={token.upper()}")
+        
+        for query_url in search_queries:
+            response = requests.get(query_url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                pairs = data.get('pairs', [])
+                if pairs:
+                    # Filter for Solana pairs
+                    solana_pairs = [p for p in pairs if p.get('chainId') == 'solana']
+                    if solana_pairs:
+                        # Sort by liquidity (highest first)
+                        solana_pairs.sort(key=lambda x: x.get('liquidity', {}).get('usd', 0), reverse=True)
+                        
+                        for pair in solana_pairs[:3]:
+                            base_token = pair.get('baseToken', {})
+                            quote_token = pair.get('quoteToken', {})
+                            
+                            # Case 1: Token is the base token
+                            if base_token.get('symbol', '').lower() == token or \
+                               base_token.get('address') == address:
+                                price = float(pair.get('priceUsd', 0))
+                                if price > 0:
+                                    print(f"  [+] Fetched {token} from DexScreener (base): ${price}")
+                                    return price
+                            
+                            # Case 2: Token is the quote token
+                            elif quote_token.get('symbol', '').lower() == token or \
+                                 quote_token.get('address') == address:
+                                base_price_usd = float(pair.get('priceUsd', 0))
+                                base_price_native = float(pair.get('priceNative', 0))
+                                if base_price_usd > 0 and base_price_native > 0:
+                                    price = base_price_usd / base_price_native
+                                    print(f"  [+] Fetched {token} from DexScreener (quote): ${price}")
+                                    return price
+    except Exception as e:
+        print(f"  [!] DexScreener error for {token}: {e}")
+    
+    # 2. Try CoinGecko as fallback
+    try:
+        coin_id = COINGECKO_IDS.get(token)
+        if coin_id:
+            url = "https://api.coingecko.com/api/v3/simple/price"
+            params = {"ids": coin_id, "vs_currencies": "usd"}
+            response = requests.get(url, params=params, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                price = float(data[coin_id]['usd'])
+                if price > 0:
+                    print(f"  [+] Fetched {token} from CoinGecko: ${price}")
+                    return price
+            elif response.status_code == 429:
+                print(f"  [!] CoinGecko rate limit for {token}")
+    except Exception as e:
+        print(f"  [!] CoinGecko error for {token}: {e}")
+    
+    # 3. Try Jupiter as tertiary fallback
+    try:
+        jup_symbol = token.upper()
+        if token == 'jupsol': jup_symbol = 'JupSOL'
+        
+        url = f"https://price.jup.ag/v6/price?ids={jup_symbol}"
+        response = requests.get(url, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
-            return float(data[coin_id]['usd'])
+            price_data = data.get('data', {}).get(jup_symbol)
+            if price_data:
+                price = float(price_data.get('price', 0))
+                if price > 0:
+                    print(f"  [+] Fetched {token} from Jupiter: ${price}")
+                    return price
     except Exception as e:
-        print(f"Error fetching price for {token}: {e}")
+        print(f"  [!] Jupiter error for {token}: {e}")
+    
+    # 4. Last resort for stablecoins
+    if token in ['usdc', 'usdt']:
+        print(f"  [+] Using default stablecoin price for {token}: 1.0")
+        return 1.0
     
     return 0.0
 

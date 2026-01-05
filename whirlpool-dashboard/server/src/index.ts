@@ -1,20 +1,24 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { createServer } from "http";
 import { getPositionsLegacy, getPositionDetails } from "./handlers/getPositions.js";
 import { getPositionsNew } from "./handlers/getPositionsNew.js";
 import { createOrDeposit } from "./handlers/createOrDeposit.js";
 import { withdraw } from "./handlers/withdraw.js";
 import { closePosition } from "./handlers/closePosition.js";
 import { getPool } from "./handlers/getPool.js";
+import { getPools } from "./handlers/getPools.js";
 import { collectFees } from "./handlers/collectFees.js";
 import { getMarketHistory } from "./handlers/getMarketHistory.js";
 import { getLiquidityDistribution } from "./handlers/getLiquidityDistribution.js";
 import { getYieldHistory } from "./handlers/getYieldHistory.js";
+import { initWebSocket, broadcast, broadcastToWallet, getConnectedClientsCount } from "./websocket.js";
 
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const port = process.env.PORT || 3001;
 
 app.use(cors());
@@ -26,7 +30,14 @@ app.use(express.json());
  * Health check
  */
 app.get("/health", (req, res) => {
-    res.json({ status: "ok", service: "whirlpool-position-manager" });
+    res.json({
+        status: "ok",
+        service: "whirlpool-position-manager",
+        websocket: {
+            enabled: true,
+            clients: getConnectedClientsCount()
+        }
+    });
 });
 
 app.get("/debug-config", (req, res) => {
@@ -106,6 +117,22 @@ app.get("/api/pool/:address", async (req, res) => {
 });
 
 /**
+ * Fetch multiple pools info (batch)
+ */
+app.post("/api/pools", async (req, res) => {
+    try {
+        const { addresses } = req.body;
+        if (!Array.isArray(addresses)) {
+            return res.status(400).json({ error: "addresses must be an array" });
+        }
+        const info = await getPools(addresses);
+        res.json(info);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
  * Create a new position or deposit into existing one
  * Returns an unsigned transaction for client-side signing
  */
@@ -158,7 +185,11 @@ app.post("/api/position/collect-fees", async (req, res) => {
 
 // --- Server Start ---
 
-app.listen(port, () => {
+// Initialize WebSocket server on the same HTTP server
+initWebSocket(server);
+
+server.listen(port, () => {
     console.log(`🚀 Whirlpool Position Manager listening at http://localhost:${port}`);
+    console.log(`📡 WebSocket server ready on ws://localhost:${port}`);
     console.log(`📡 RPC URL: ${process.env.RPC_URL || 'default'}`);
 });

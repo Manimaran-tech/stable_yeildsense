@@ -151,7 +151,9 @@ class BoundsCalculator:
                                    base_token.get('address') == address:
                                     price = float(pair.get('priceUsd', 0))
                                     if price > 0:
-                                        print(f"  [+] Fetched {token} price from DexScreener (base): ${price}")
+                                        # Cache 24h change for volatility estimation
+                                        self._last_24h_change = float(pair.get('priceChange', {}).get('h24', 0.0))
+                                        print(f"  [+] Fetched {token} price from DexScreener (base): ${price}, 24h change: {self._last_24h_change}%")
                                         return price
                                 
                                 # Case 2: Token is the quote token
@@ -164,7 +166,9 @@ class BoundsCalculator:
                                     base_price_native = float(pair.get('priceNative', 0))
                                     if base_price_usd > 0 and base_price_native > 0:
                                         price = base_price_usd / base_price_native
-                                        print(f"  [+] Fetched {token} price from DexScreener (quote): ${price}")
+                                        # Cache 24h change for volatility estimation
+                                        self._last_24h_change = float(pair.get('priceChange', {}).get('h24', 0.0))
+                                        print(f"  [+] Fetched {token} price from DexScreener (quote): ${price}, 24h change: {self._last_24h_change}%")
                                         return price
         except Exception as e:
             print(f"  [!] DexScreener error for {token}: {e}")
@@ -220,44 +224,21 @@ class BoundsCalculator:
         return 0.0
     
     def fetch_historical_data(self, token: str, days: int = 30) -> pd.DataFrame:
-        """Fetch historical price data."""
+        """
+        Fetch historical price data from local parquet files.
+        CoinGecko removed due to rate limits - using local data only.
+        """
         token = token.lower()
-        parquet_path = f"data/processed/{token}_aligned.parquet"
         
+        # Use local parquet files for historical data
+        parquet_path = f"data/processed/{token}_aligned.parquet"
         if os.path.exists(parquet_path):
             df = pd.read_parquet(parquet_path)
-            # Get last N days
             if len(df) > days:
                 df = df.iloc[-days:]
             return df
         
-        # Fallback: fetch from CoinGecko
-        return self._fetch_from_coingecko(token, days)
-    
-    def _fetch_from_coingecko(self, token: str, days: int = 30) -> pd.DataFrame:
-        """Fetch historical data from CoinGecko."""
-        coin_id = self.COINGECKO_IDS.get(token)
-        if not coin_id:
-            return pd.DataFrame()
-        
-        try:
-            url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
-            params = {"vs_currency": "usd", "days": days, "interval": "daily"}
-            response = requests.get(url, params=params, timeout=30)
-            
-            if response.status_code == 200:
-                data = response.json().get('prices', [])
-                if data:
-                    df = pd.DataFrame(data, columns=['timestamp', 'price'])
-                    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-                    df = df.rename(columns={'timestamp': 'date'})
-                    # Add dummy columns for compatibility
-                    df['tvl_change_7d'] = 0.0
-                    df['apy_cv'] = 0.0
-                    return df
-        except Exception as e:
-            print(f"CoinGecko fetch error: {e}")
-        
+        # Return empty DataFrame if no local data
         return pd.DataFrame()
     
     def get_lstm_prediction(self, token: str, historical_data: pd.DataFrame) -> Dict:
@@ -369,6 +350,17 @@ class BoundsCalculator:
         # Fetch historical data if not provided
         if historical_data is None:
             historical_data = self.fetch_historical_data(token)
+            
+        # Append current price to historical data to make volatility dynamic
+        # This ensures the safety score reacts immediately to recent price action
+        if current_price and current_price > 0 and historical_data is not None and not historical_data.empty:
+            new_row = pd.DataFrame({
+                'date': [datetime.now()],
+                'price': [float(current_price)],
+                'tvl_change_7d': [0.0],
+                'apy_cv': [0.0]
+            })
+            historical_data = pd.concat([historical_data, new_row], ignore_index=True)
         
         # Get LSTM prediction
         lstm_result = self.get_lstm_prediction(token, historical_data)
@@ -376,12 +368,22 @@ class BoundsCalculator:
         # Get sentiment score
         sentiment_result = self.get_sentiment_score(headlines or [])
         
+        
         # Calculate recent historical volatility (PRIMARY source of truth)
-        if len(historical_data) > 7:
+        # Special handling for stablecoins - they have very low volatility
+        if token in ['usdc', 'usdt']:
+            daily_volatility = 0.001  # 0.1% daily volatility for stablecoins
+        elif len(historical_data) > 7:
             recent_returns = historical_data['price'].pct_change().dropna().iloc[-14:]
             daily_volatility = recent_returns.std() if len(recent_returns) > 0 else 0.02
         else:
-            daily_volatility = 0.02
+            # Fallback: Estimate volatility from 24h price change if available
+            if hasattr(self, '_last_24h_change') and self._last_24h_change != 0:
+                # Approximate daily volatility as abs(24h_change) / 2 (conservative estimate)
+                # e.g. 5% move -> 2.5% volatility
+                daily_volatility = max(0.02, abs(self._last_24h_change / 100.0) * 0.6)
+            else:
+                daily_volatility = 0.02
         
         # Scale to weekly (sqrt(7) rule)
         weekly_volatility = daily_volatility * np.sqrt(7)

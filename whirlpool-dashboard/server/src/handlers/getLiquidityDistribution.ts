@@ -41,12 +41,14 @@ export async function getLiquidityDistribution(req: Request, res: Response) {
         const ticksInArray = tickSpacing * TICK_ARRAY_SIZE;
         const tickArrayStartTick = Math.floor(currentTick / ticksInArray) * ticksInArray;
 
-        // Fetch surrounding tick arrays (current, prev, next) to get a good range
-        const pdas = [
-            PDAUtil.getTickArray(ctx.program.programId, poolPubkey, tickArrayStartTick).publicKey,
-            PDAUtil.getTickArray(ctx.program.programId, poolPubkey, tickArrayStartTick - ticksInArray).publicKey,
-            PDAUtil.getTickArray(ctx.program.programId, poolPubkey, tickArrayStartTick + ticksInArray).publicKey,
-        ];
+        // Fetch 11 tick arrays (+/- 5 from current) to get wider coverage for all pool types
+        // Expanded range for pools with low-value tokens (PENGU) or pegged assets (JupSOL/SOL)
+        const pdas = [];
+        for (let i = -5; i <= 5; i++) {
+            const startTick = tickArrayStartTick + (i * ticksInArray);
+            pdas.push(PDAUtil.getTickArray(ctx.program.programId, poolPubkey, startTick).publicKey);
+        }
+        console.log(`[getLiquidityDistribution] Fetching ${pdas.length} tick arrays for pool ${address}`);
 
         // Use getTickArrays (correct method name per lint/docs usually)
         const tickArrays = await ctx.fetcher.getTickArrays(pdas); // Default fetch options

@@ -102,6 +102,18 @@ export const api = {
         return response.json();
     },
 
+    async getPools(addresses: string[]): Promise<any[]> {
+        const response = await fetch(`${BACKEND_URL}/api/pools`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ addresses })
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch pools: ${response.statusText}`);
+        }
+        return response.json();
+    },
+
     async getMarketHistory(days: string = '1'): Promise<any> {
         const response = await fetch(`${BACKEND_URL}/api/market/history?days=${days}`);
         if (!response.ok) {
