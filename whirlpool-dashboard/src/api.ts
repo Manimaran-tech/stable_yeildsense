@@ -201,7 +201,7 @@ export const tradingApi = {
 // ==========================
 // ML API CLIENT
 // ==========================
-const ML_API_URL = 'http://127.0.0.1:5000';
+const ML_API_URL = 'http://127.0.0.1:8000';
 
 export interface MLQuickAnalysis {
     success: boolean;
@@ -239,7 +239,8 @@ export const mlApi = {
     async healthCheck(): Promise<{ status: string; models: { volatility: boolean; sentiment: boolean } }> {
         const response = await fetch(`${ML_API_URL}/api/health`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'no-store'
         });
         if (!response.ok) throw new Error('ML API is not available');
         return response.json();
@@ -247,11 +248,16 @@ export const mlApi = {
 
     /**
      * Get quick analysis for a token pair (optimized for UI)
+     * Uses cache: 'no-store' to ensure fresh predictions on every request
      */
     async getQuickAnalysis(tokenA: string, tokenB: string, priceA?: number, priceB?: number): Promise<MLQuickAnalysis> {
         const response = await fetch(`${ML_API_URL}/api/farming/quick-analysis`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+            },
+            cache: 'no-store',
             body: JSON.stringify({
                 token_a: tokenA.toLowerCase(),
                 token_b: tokenB.toLowerCase(),
