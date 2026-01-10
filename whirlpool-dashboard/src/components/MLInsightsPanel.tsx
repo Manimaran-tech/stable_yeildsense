@@ -9,6 +9,7 @@ interface MLInsightsPanelProps {
     tokenB: string;
     isOpen: boolean;
     onPredictedRangeChange?: (lower: number, upper: number) => void;
+    onApplyPrediction?: (lower: number, upper: number) => void;
     currentPriceA?: number;
     currentPriceB?: number;
 }
@@ -91,7 +92,7 @@ const SafetyGauge: FC<{ score: number }> = ({ score }) => {
                 </g>
 
                 {/* Score text */}
-                <text x="100" y="85" textAnchor="middle" className="fill-foreground text-2xl font-bold">
+                <text x="100" y="85" textAnchor="middle" fill="white" className="text-2xl font-bold">
                     {Math.round(score)}
                 </text>
                 <text x="100" y="100" textAnchor="middle" className="fill-muted-foreground text-xs">
@@ -142,7 +143,7 @@ const PriceRangeCard: FC<{
     const rangeWidth = ((upperBound - lowerBound) / currentPrice * 100).toFixed(1);
 
     return (
-        <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+        <div className="bg-[#1e293b] rounded-lg p-3 space-y-2">
             <div className="flex items-center justify-between">
                 <span className="font-semibold text-sm">{symbol}</span>
                 <span className={`text-xs px-2 py-0.5 rounded ${safetyScore >= 75 ? 'bg-green-500/20 text-green-400' :
@@ -181,6 +182,7 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
     tokenB,
     isOpen,
     onPredictedRangeChange,
+    onApplyPrediction,
     currentPriceA,
     currentPriceB
 }) => {
@@ -360,7 +362,7 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
     // Loading state
     if (loading) {
         return (
-            <div className="bg-card/50 border border-border rounded-xl p-4 space-y-4">
+            <div className="bg-[#0a0e1a] border border-[#1e293b] rounded-xl p-4 space-y-4">
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="animate-spin text-primary mr-2" size={24} />
                     <span className="text-muted-foreground">Analyzing with AI...</span>
@@ -372,7 +374,7 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
     // Error state
     if (error) {
         return (
-            <div className="bg-card/50 border border-border rounded-xl p-4">
+            <div className="bg-[#0a0e1a] border border-[#1e293b] rounded-xl p-4">
                 <div className="flex items-start gap-3 text-yellow-400">
                     <AlertCircle size={20} className="shrink-0 mt-0.5" />
                     <div className="space-y-1">
@@ -387,7 +389,7 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
     // No data
     if (!analysis) {
         return (
-            <div className="bg-card/50 border border-border rounded-xl p-4">
+            <div className="bg-[#0a0e1a] border border-[#1e293b] rounded-xl p-4">
                 <p className="text-sm text-muted-foreground text-center">No analysis available</p>
             </div>
         );
@@ -397,7 +399,7 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
     const recDisplay = getRecommendationDisplay(overall.recommendation);
 
     return (
-        <div className="bg-gradient-to-br from-card/80 to-card/40 border border-border rounded-xl p-4 space-y-4 backdrop-blur-sm">
+        <div className="bg-[#0a0e1a] border border-[#1e293b] rounded-xl p-4 space-y-4 shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold flex items-center gap-2">
@@ -444,18 +446,50 @@ export const MLInsightsPanel: FC<MLInsightsPanelProps> = ({
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                <div className="bg-[#1e293b] rounded-lg p-2 text-center">
                     <span className="text-muted-foreground">Token A Range</span>
                     <p className="font-mono font-medium">±{token_a.range_width_pct?.toFixed(1) || '0'}%</p>
                 </div>
-                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                <div className="bg-[#1e293b] rounded-lg p-2 text-center">
                     <span className="text-muted-foreground">Token B Range</span>
                     <p className="font-mono font-medium">±{token_b.range_width_pct?.toFixed(1) || '0'}%</p>
                 </div>
             </div>
 
+            {/* Use AI Prediction Button */}
+            {onApplyPrediction && (
+                <button
+                    onClick={() => {
+                        // Re-calculate which prediction to use (same logic as effect)
+                        const stablecoins = ['USDC', 'USDT'];
+                        const isTokenAStable = stablecoins.includes(tokenA);
+                        const isTokenBStable = stablecoins.includes(tokenB);
+                        const isTokenASOL = tokenA === 'SOL';
+                        const isTokenBSOL = tokenB === 'SOL';
+
+                        let useTokenA = true;
+                        if (isTokenAStable) useTokenA = false;
+                        else if (isTokenBStable) useTokenA = true;
+                        else if (isTokenASOL && !isTokenBSOL) useTokenA = false;
+                        else if (isTokenBSOL && !isTokenASOL) useTokenA = true;
+
+                        const resultForInputA = tokenMapping.swapped ? analysis.token_b : analysis.token_a;
+                        const resultForInputB = tokenMapping.swapped ? analysis.token_a : analysis.token_b;
+                        const targetPrediction = useTokenA ? resultForInputA : resultForInputB;
+
+                        if (targetPrediction) {
+                            onApplyPrediction(targetPrediction.lower_bound, targetPrediction.upper_bound);
+                        }
+                    }}
+                    className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                >
+                    <Activity size={16} />
+                    Use AI Prediction
+                </button>
+            )}
+
             {/* Footer */}
-            <div className="text-center text-xs text-muted-foreground pt-2 border-t border-border/50">
+            <div className="text-center text-xs text-muted-foreground pt-2 border-t border-[#1e293b]">
                 Powered by LSTM + FinBERT Sentiment
             </div>
         </div>

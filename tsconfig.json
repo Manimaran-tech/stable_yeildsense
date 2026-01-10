@@ -9,8 +9,10 @@
     "checkJs": false,
     "types": []
   },
-  "include": [],
-  "exclude": [
-    "**/*"
+  "files": [],
+  "references": [
+    {
+      "path": "./whirlpool-dashboard"
+    }
   ]
 }

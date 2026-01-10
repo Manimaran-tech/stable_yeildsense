@@ -135,7 +135,7 @@ export const TokenNewsPanel: FC<TokenNewsPanelProps> = ({ tokenA, tokenB, isOpen
                 )}
 
                 {/* Sentiment Score */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-[#1e293b]">
                     <span>Sentiment Score</span>
                     <span className={`font-mono ${news.net_sentiment > 0 ? 'text-green-400' : news.net_sentiment < 0 ? 'text-red-400' : 'text-yellow-400'}`}>
                         {news.net_sentiment > 0 ? '+' : ''}{(news.net_sentiment * 100).toFixed(1)}%
@@ -164,19 +164,19 @@ export const TokenNewsPanel: FC<TokenNewsPanelProps> = ({ tokenA, tokenB, isOpen
             ) : (
                 <div className="flex-1 space-y-4 overflow-y-auto">
                     {/* Token A News */}
-                    <div className="bg-gradient-to-br from-card/60 to-card/30 border border-border/50 rounded-xl p-3">
+                    <div className="bg-[#1e293b] rounded-xl p-3">
                         {renderNewsSection(tokenA, newsA)}
                     </div>
 
                     {/* Token B News */}
-                    <div className="bg-gradient-to-br from-card/60 to-card/30 border border-border/50 rounded-xl p-3">
+                    <div className="bg-[#1e293b] rounded-xl p-3">
                         {renderNewsSection(tokenB, newsB)}
                     </div>
                 </div>
             )}
 
             {/* Footer */}
-            <div className="text-center text-xs text-muted-foreground pt-2 border-t border-border/50">
+            <div className="text-center text-xs text-muted-foreground pt-2 border-t border-[#1e293b]">
                 Powered by FinBERT Sentiment
             </div>
         </div>

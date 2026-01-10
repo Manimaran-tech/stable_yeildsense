@@ -61,7 +61,7 @@ const TrendIndicator: FC<{ trend: SentimentTrend }> = ({ trend }) => {
  */
 export const NewsPanel: FC<NewsPanelProps> = ({ tokenA, tokenB, isOpen }) => {
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [_error, setError] = useState<string | null>(null);
     const [sentiment, setSentiment] = useState<{
         trend: SentimentTrend;
         score: number;

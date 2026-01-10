@@ -1,16 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-border: hsl(var(--border));
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 222.2 84% 4.9%;
@@ -43,6 +32,78 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    background:
+      radial-gradient(900px at 15% 10%, rgba(99, 102, 241, 0.10), transparent 45%),
+      radial-gradient(700px at 85% 30%, rgba(168, 85, 247, 0.08), transparent 50%),
+      linear-gradient(180deg, #050816 0%, #02030a 100%) !important;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    /* Using CSS noise fallback if image missing */
+    background-image:
+      repeating-linear-gradient(0deg,
+        rgba(255, 255, 255, 0.02),
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 1px,
+        transparent 2px);
+    opacity: 0.1;
+    /* Adjusted for visibility with CSS noise */
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    pointer-events: none;
+    opacity: 0.25;
+    z-index: 1;
+    /* Ensure grid is also above background */
+  }
+
+  .bg-orb {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    filter: blur(120px);
+    opacity: 0.25;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .orb-1 {
+    background: #6366f1;
+    top: -200px;
+    left: -200px;
+  }
+
+  .orb-2 {
+    background: #a855f7;
+    bottom: -200px;
+    right: -200px;
+  }
+
+  /* Hide number input spinners (up/down arrows) */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
   }
 }

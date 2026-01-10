@@ -23,6 +23,18 @@ const TokenUsdPrice = ({ token }: { token: string }) => {
     return <span>${price.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>;
 };
 
+// Helper to get token icon path
+const getTokenIcon = (symbol: string) => {
+    switch (symbol.toLowerCase()) {
+        case 'sol': return '/tokens/sol.png';
+        case 'pengu': return '/tokens/pengu.png';
+        case 'jup': return '/tokens/jup.png';
+        case 'jupsol': return '/tokens/jupsol.png';
+        case 'usdc': return '/tokens/usdc.png';
+        default: return null;
+    }
+};
+
 export const PoolList = () => {
     const { pools, loading } = usePools();
     const [selectedPoolAddress, setSelectedPoolAddress] = useState<string | null>(null);
@@ -42,57 +54,159 @@ export const PoolList = () => {
     }
 
     return (
-        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-[#0a0e1a] border border-[#1e293b] rounded-2xl overflow-hidden shadow-2xl">
+            {/* Table Header Section */}
+            <div className="px-6 py-5 border-b border-[#1e293b] bg-gradient-to-r from-[#0a0e1a] to-[#111827]">
+                <h2 className="text-xl font-bold text-white tracking-tight">Available Pools</h2>
+                <p className="text-sm text-slate-400 mt-1">Select a pool to create a new liquidity position</p>
+            </div>
+
             <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-muted/50 text-muted-foreground text-sm uppercase tracking-wider">
-                        <tr>
-                            <th className="px-6 py-4 font-semibold">Pair</th>
-                            <th className="px-6 py-4 font-semibold">Price (USD)</th>
-                            <th className="px-6 py-4 font-semibold">Fee Tier</th>
-                            <th className="px-6 py-4 font-semibold">Liquidity</th>
-                            <th className="px-6 py-4 font-semibold text-right">Actions</th>
+                <table className="w-full text-left border-collapse">
+                    {/* Solid Table Header */}
+                    <thead>
+                        <tr className="bg-[#111827] border-b-2 border-[#2563eb]/30">
+                            <th className="px-6 py-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    Pair
+                                </div>
+                            </th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                                Price (USD)
+                            </th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                                Fee Tier
+                            </th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                                Liquidity
+                            </th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
-                        {pools.map((pool) => (
-                            <tr key={pool.address} className="hover:bg-muted/20 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex -space-x-2">
-                                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-[10px] text-white font-bold border-2 border-card">{pool.tokenA[0]}</div>
-                                            <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-[10px] text-white font-bold border-2 border-card">{pool.tokenB[0]}</div>
+
+                    {/* Table Body with Solid Rows */}
+                    <tbody>
+                        {pools.map((pool, index) => {
+                            const iconA = getTokenIcon(pool.tokenA);
+                            const iconB = getTokenIcon(pool.tokenB);
+
+                            return (
+                                <tr
+                                    key={pool.address}
+                                    className={`
+                                        border-b border-[#1e293b] 
+                                        hover:bg-[#1e293b]/50 
+                                        transition-all duration-200 
+                                        group
+                                        ${index % 2 === 0 ? 'bg-[#0a0e1a]' : 'bg-[#0d1321]'}
+                                    `}
+                                >
+                                    {/* Pair Column */}
+                                    <td className="px-6 py-5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex -space-x-2">
+                                                {/* Token A Avatar */}
+                                                <div className="w-10 h-10 rounded-full bg-[#0a0e1a] flex items-center justify-center border-2 border-[#0a0e1a] shadow-lg shadow-blue-500/20 ring-2 ring-blue-500/20 overflow-hidden relative">
+                                                    {iconA ? (
+                                                        <img
+                                                            src={iconA}
+                                                            alt={pool.tokenA}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
+                                                            <span className={pool.tokenA.length > 3 ? "text-[10px]" : "text-xs"}>
+                                                                {pool.tokenA}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Token B Avatar */}
+                                                <div className="w-10 h-10 rounded-full bg-[#0a0e1a] flex items-center justify-center border-2 border-[#0a0e1a] shadow-lg shadow-purple-500/20 ring-2 ring-purple-500/20 overflow-hidden relative">
+                                                    {iconB ? (
+                                                        <img
+                                                            src={iconB}
+                                                            alt={pool.tokenB}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold">
+                                                            <span className={pool.tokenB.length > 3 ? "text-[10px]" : "text-xs"}>
+                                                                {pool.tokenB}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-white text-base group-hover:text-blue-400 transition-colors">
+                                                    {pool.tokenA}/{pool.tokenB}
+                                                </span>
+                                                <span className="text-xs text-slate-500 font-mono truncate max-w-[120px]">
+                                                    {pool.address.slice(0, 8)}...
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="font-semibold">{pool.tokenA}/{pool.tokenB}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 font-medium">
-                                    {/* 
-                                      Heuristic: Show the "Asset" price.
-                                      - Default: Show Token A.
-                                      - Exception: If A is SOL and B is NOT stable (e.g. SOL/PENGU), show B.
-                                    */}
-                                    <TokenUsdPrice token={
-                                        (pool.tokenA === 'SOL' && !['USDC', 'USDT'].includes(pool.tokenB))
-                                            ? pool.tokenB
-                                            : pool.tokenA
-                                    } />
-                                </td>
-                                <td className="px-6 py-4 text-muted-foreground">{(pool.feeTier).toFixed(2)}%</td>
-                                <td className="px-6 py-4 font-medium">{pool.liquidity}</td>
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        onClick={() => handleDepositClick(pool.address)}
-                                        className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
-                                    >
-                                        <ArrowRightLeft size={16} className="mr-2" />
-                                        New Position
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+
+                                    {/* Price Column */}
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold text-white text-base">
+                                                <TokenUsdPrice token={
+                                                    (pool.tokenA === 'SOL' && !['USDC', 'USDT'].includes(pool.tokenB))
+                                                        ? pool.tokenB
+                                                        : pool.tokenA
+                                                } />
+                                            </span>
+                                            <span className="text-xs text-emerald-400 font-medium">Live</span>
+                                        </div>
+                                    </td>
+
+                                    {/* Fee Tier Column */}
+                                    <td className="px-6 py-5">
+                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-[#1e293b] text-cyan-400 font-bold text-sm border border-cyan-500/20">
+                                            {(pool.feeTier).toFixed(2)}%
+                                        </span>
+                                    </td>
+
+                                    {/* Liquidity Column */}
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-white text-base">{pool.liquidity}</span>
+                                        </div>
+                                    </td>
+
+                                    {/* Actions Column */}
+                                    <td className="px-6 py-5 text-right">
+                                        <button
+                                            onClick={() => handleDepositClick(pool.address)}
+                                            className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] border border-blue-400/20"
+                                        >
+                                            <ArrowRightLeft size={16} className="mr-2" />
+                                            New Position
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Table Footer */}
+            <div className="px-6 py-4 border-t border-[#1e293b] bg-[#0d1321] flex items-center justify-between">
+                <span className="text-sm text-slate-400">
+                    Showing <span className="text-white font-semibold">{pools.length}</span> pools
+                </span>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Real-time data
+                </div>
             </div>
 
             {selectedPoolAddress && (() => {

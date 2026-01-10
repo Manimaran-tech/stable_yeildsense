@@ -54,7 +54,7 @@ export const PositionList = () => {
 
     if (!connected) {
         return (
-            <div className="bg-card border border-border rounded-xl p-8 text-center">
+            <div className="bg-[#0a0e1a] border border-[#1e293b]/50 rounded-xl p-8 text-center">
                 <p className="text-muted-foreground">Connect your wallet to view your active positions.</p>
             </div>
         );
@@ -82,118 +82,137 @@ export const PositionList = () => {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                    <TrendingUp className="text-primary" />
+                <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                    <TrendingUp className="text-blue-500" />
                     My Positions
                 </h3>
                 <button
                     onClick={refresh}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-lg hover:bg-muted/50"
+                    className="text-sm font-medium text-slate-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-[#1e293b] flex items-center gap-2"
                 >
-                    Refresh
+                    <Coins size={14} className="animate-pulse text-yellow-500" />
+                    Refresh Data
                 </button>
             </div>
 
             {positions.length === 0 ? (
-                <div className="bg-card border border-border rounded-xl p-8 text-center">
-                    <p className="text-muted-foreground">No active positions found for this wallet on Mainnet.</p>
-                    <p className="text-sm text-muted-foreground mt-2">Open a position in any pool to get started.</p>
+                <div className="bg-[#0a0e1a] border border-[#1e293b]/50 rounded-2xl p-12 text-center shadow-xl">
+                    <div className="w-16 h-16 bg-[#1e293b] rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
+                        <TrendingUp size={32} />
+                    </div>
+                    <p className="text-slate-300 font-medium text-lg">No active positions found</p>
+                    <p className="text-sm text-slate-500 mt-2">Open a position in any pool to get started.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {positions.map((pos) => (
-                        <div key={pos.address} className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow relative overflow-hidden">
-                            {/* In-Range Status Badge */}
-                            {pos.inRange ? (
-                                <div className="absolute top-0 right-0 bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-bl-lg font-semibold">
-                                    ✓ In Range
-                                </div>
-                            ) : (
-                                <div className="absolute top-0 right-0 bg-yellow-500/20 text-yellow-500 text-xs px-3 py-1.5 rounded-bl-lg font-bold flex items-center gap-1">
-                                    <AlertTriangle size={12} />
-                                    Out of Range
-                                </div>
-                            )}
+                        <div key={pos.address} className="bg-[#0a0e1a] border border-[#1e293b] rounded-2xl p-6 hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 group relative overflow-hidden">
+                            {/* Gradient Glow Effect on Hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-                            {/* Pool Pair */}
-                            <div className="flex justify-between items-start mb-4">
-                                <h4 className="font-bold text-lg">{pos.poolPair}</h4>
+                            {/* Header Section */}
+                            <div className="flex justify-between items-start mb-6 relative">
+                                <div>
+                                    <h4 className="font-bold text-xl text-white tracking-tight">{pos.poolPair}</h4>
+                                    <p className="text-xs text-slate-500 font-mono mt-1">{pos.whirlpoolAddress.slice(0, 8)}...</p>
+                                </div>
+                                {pos.inRange ? (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                                        In Range
+                                    </div>
+                                ) : (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">
+                                        <AlertTriangle size={12} />
+                                        Out of Range
+                                    </div>
+                                )}
                             </div>
 
                             {/* Out of Range Warning */}
                             {!pos.inRange && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2 mb-4 text-xs text-yellow-200">
-                                    ⚠️ Not earning fees — price is outside your range
+                                <div className="bg-yellow-500/5 border-l-2 border-yellow-500 p-3 mb-5 rounded-r-lg relative">
+                                    <p className="text-xs text-yellow-200 font-medium leading-relaxed">
+                                        ⚠️ Fees are paused. Price is outside your range.
+                                    </p>
                                 </div>
                             )}
 
-                            {/* Position Details */}
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Liquidity</span>
-                                    <span className="font-mono font-medium">{pos.liquidity}</span>
+                            {/* Stats Grid */}
+                            <div className="space-y-4 mb-6 relative">
+                                {/* Liquidity */}
+                                <div className="flex justify-between items-center p-3 rounded-xl bg-[#111827] border border-[#1e293b]">
+                                    <span className="text-xs font-medium text-slate-400">Liquidity</span>
+                                    <span className="font-mono font-bold text-white text-sm">{pos.liquidity}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Unclaimed Fees</span>
-                                    <span className="font-mono font-medium text-green-400">
-                                        {BigInt(pos.unclaimedFeesA || '0') > 0 || BigInt(pos.unclaimedFeesB || '0') > 0
-                                            ? 'Available'
-                                            : '—'}
-                                    </span>
+
+                                {/* Unclaimed Fees */}
+                                <div className="flex justify-between items-center p-3 rounded-xl bg-[#111827] border border-[#1e293b]">
+                                    <span className="text-xs font-medium text-slate-400">Unclaimed Fees</span>
+                                    {BigInt(pos.unclaimedFeesA || '0') > 0 || BigInt(pos.unclaimedFeesB || '0') > 0 ? (
+                                        <span className="font-bold text-emerald-400 text-xs flex items-center gap-1">
+                                            <Coins size={12} />
+                                            Available
+                                        </span>
+                                    ) : (
+                                        <span className="text-slate-600 text-xs font-mono">—</span>
+                                    )}
                                 </div>
-                                <div className="pt-2 border-t border-border/50">
-                                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                                        <span>Min: ${pos.minPrice}</span>
-                                        <span>Max: ${pos.maxPrice}</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden relative">
-                                        {/* Range visualization */}
-                                        <div
-                                            className={`h-full rounded-full ${pos.inRange ? 'bg-primary' : 'bg-yellow-500'}`}
-                                            style={{ width: '100%' }}
-                                        />
-                                        {/* Current price indicator */}
-                                        <div
-                                            className="absolute top-0 w-0.5 h-full bg-white"
-                                            style={{
-                                                left: `${Math.min(100, Math.max(0, ((parseFloat(pos.currentPrice) - parseFloat(pos.minPrice)) / (parseFloat(pos.maxPrice) - parseFloat(pos.minPrice))) * 100))}%`
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="text-center text-xs mt-1 font-mono text-muted-foreground">
-                                        Current: ${pos.currentPrice}
-                                    </div>
+                            </div>
+
+                            {/* Range Visualization */}
+                            <div className="mb-6 relative">
+                                <div className="flex justify-between text-[10px] text-slate-500 font-mono mb-2">
+                                    <span>${parseFloat(pos.minPrice).toFixed(4)}</span>
+                                    <span>${parseFloat(pos.maxPrice).toFixed(4)}</span>
+                                </div>
+                                <div className="w-full h-3 bg-[#1e293b] rounded-full overflow-hidden relative shadow-inner">
+                                    {/* Range Bar */}
+                                    <div
+                                        className={`h-full rounded-full ${pos.inRange ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-yellow-500/50'}`}
+                                        style={{ width: '100%' }}
+                                    />
+                                    {/* Current Price Marker */}
+                                    <div
+                                        className="absolute top-0 h-full w-1 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10 scale-y-125"
+                                        style={{
+                                            left: `${Math.min(100, Math.max(0, ((parseFloat(pos.currentPrice) - parseFloat(pos.minPrice)) / (parseFloat(pos.maxPrice) - parseFloat(pos.minPrice))) * 100))}%`
+                                        }}
+                                    />
+                                </div>
+                                <div className="text-center text-xs mt-2 font-mono font-medium text-white">
+                                    Current: <span className={pos.inRange ? 'text-emerald-400' : 'text-yellow-400'}>${pos.currentPrice}</span>
                                 </div>
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="mt-4 grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-3 relative">
                                 <button
                                     onClick={() => handleCollectFees(pos)}
-                                    className="flex items-center justify-center gap-1 py-2 bg-green-600/20 text-green-400 hover:bg-green-600/30 rounded-lg text-sm font-medium transition-colors border border-green-600/30"
+                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-emerald-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-emerald-500/30"
                                 >
                                     <Coins size={14} />
                                     Collect
                                 </button>
                                 <button
                                     onClick={() => handleAddLiquidity(pos)}
-                                    className="flex items-center justify-center gap-1 py-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg text-sm font-medium transition-colors border border-blue-600/30"
+                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-blue-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-blue-500/30"
                                 >
                                     <Plus size={14} />
                                     Add
                                 </button>
                                 <button
                                     onClick={() => handleWithdraw(pos)}
-                                    className="flex items-center justify-center gap-1 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg text-sm font-medium transition-colors"
+                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-purple-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-purple-500/30"
                                 >
                                     <Minus size={14} />
                                     Withdraw
                                 </button>
                                 <button
                                     onClick={() => handleClosePosition(pos)}
-                                    className="flex items-center justify-center gap-1 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded-lg text-sm font-medium transition-colors border border-red-600/30"
+                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-red-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-red-500/30"
                                 >
                                     <Trash2 size={14} />
                                     Close

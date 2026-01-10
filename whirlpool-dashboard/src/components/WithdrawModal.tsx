@@ -4,6 +4,8 @@ import { X, Loader2, AlertTriangle } from 'lucide-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { api } from '../api';
 import { deserializeTransaction } from '../utils/transactions';
+import { encryptAmount, formatEncryptedDisplay, type EncryptedAmount } from '../services/incoService';
+import { SecurityStatusBanner } from './SecurityBadge';
 
 interface WithdrawModalProps {
     isOpen: boolean;
@@ -17,10 +19,13 @@ export const WithdrawModal: FC<WithdrawModalProps> = ({ isOpen, onClose, positio
     const { connection } = useConnection();
     const [percentage, setPercentage] = useState(100);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
+    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'encrypting' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
     const [txSignature, setTxSignature] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [withdrawnAmounts, setWithdrawnAmounts] = useState<{ tokenA: string; tokenB: string } | null>(null);
+
+    // Inco encryption state
+    const [encryptedWithdrawAmount, setEncryptedWithdrawAmount] = useState<EncryptedAmount | null>(null);
 
     if (!isOpen) return null;
 
@@ -65,6 +70,14 @@ export const WithdrawModal: FC<WithdrawModalProps> = ({ isOpen, onClose, positio
 
             const totalLiquidity = BigInt(position.liquidity);
             const liquidityToRemove = (totalLiquidity * BigInt(percentage)) / BigInt(100);
+
+            // Encrypt withdrawal amount with Inco SDK
+            setTxStatus('encrypting');
+            const encrypted = await encryptAmount(liquidityToRemove.toString());
+            setEncryptedWithdrawAmount(encrypted);
+            console.log("Withdraw: Amount encrypted:", encrypted.encrypted.substring(0, 20) + '...');
+
+            setTxStatus('building');
 
             console.log("Withdraw: Requesting transaction from backend...");
             const response = await api.withdraw({
@@ -115,9 +128,10 @@ export const WithdrawModal: FC<WithdrawModalProps> = ({ isOpen, onClose, positio
     const getStatusMessage = () => {
         switch (txStatus) {
             case 'building': return 'Building transaction...';
+            case 'encrypting': return '🔒 Securing with Inco encryption...';
             case 'signing': return 'Please approve in your wallet...';
             case 'confirming': return 'Confirming on-chain...';
-            case 'success': return 'Withdrawal successful!';
+            case 'success': return '✅ Withdrawal completed securely!';
             case 'error': return 'Transaction failed';
             default: return '';
         }
@@ -183,6 +197,19 @@ export const WithdrawModal: FC<WithdrawModalProps> = ({ isOpen, onClose, positio
                             )}
                         </div>
 
+                        {/* Inco Security Status */}
+                        <div className="space-y-2">
+                            <SecurityStatusBanner isEncrypted={true} tokenSymbol="liquidity" />
+                            {encryptedWithdrawAmount && (
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span>🔒 Encrypted:</span>
+                                    <code className="text-emerald-400/70 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                        {formatEncryptedDisplay(encryptedWithdrawAmount.encrypted, 12)}
+                                    </code>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Transaction Status */}
                         {txStatus !== 'idle' && (
                             <div className={`p-4 rounded-lg border ${txStatus === 'success'
@@ -232,7 +259,7 @@ export const WithdrawModal: FC<WithdrawModalProps> = ({ isOpen, onClose, positio
 
                         {/* Info */}
                         <div className="text-xs text-muted-foreground">
-                            <p>⚡ This is an on-chain transaction requiring SOL for gas fees.</p>
+                            <p>⚡ Encrypted transaction executed on Solana. Gas fees paid in SOL.</p>
                         </div>
                     </div>
                 </div>

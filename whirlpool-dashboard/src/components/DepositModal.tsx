@@ -4,6 +4,8 @@ import { X, Info, Loader2 } from 'lucide-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { api } from '../api';
 import { deserializeTransaction } from '../utils/transactions';
+import { encryptAmount, formatEncryptedDisplay, type EncryptedAmount } from '../services/incoService';
+import { SecurityStatusBanner } from './SecurityBadge';
 
 interface DepositModalProps {
     isOpen: boolean;
@@ -19,9 +21,12 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, poolAddre
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
+    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'encrypting' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
     const [txSignature, setTxSignature] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    // Inco encryption state
+    const [encryptedAmount, setEncryptedAmount] = useState<EncryptedAmount | null>(null);
 
     if (!isOpen) return null;
 
@@ -42,6 +47,14 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, poolAddre
 
         try {
             console.log("Deposit: Building transaction for pool:", poolAddress);
+
+            // Encrypt amount with Inco SDK
+            setTxStatus('encrypting');
+            const encrypted = await encryptAmount(amountA);
+            setEncryptedAmount(encrypted);
+            console.log("Deposit: Amount encrypted:", encrypted.encrypted.substring(0, 20) + '...');
+
+            setTxStatus('building');
 
             // Backend expects: wallet, whirlpool, priceLower, priceUpper, amountA
             const response = await api.createOrDeposit({
@@ -91,9 +104,10 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, poolAddre
     const getStatusMessage = () => {
         switch (txStatus) {
             case 'building': return 'Building transaction...';
+            case 'encrypting': return '🔒 Securing with Inco encryption...';
             case 'signing': return 'Please approve in your wallet...';
             case 'confirming': return 'Confirming on-chain...';
-            case 'success': return 'Position created successfully!';
+            case 'success': return '✅ Liquidity added securely!';
             case 'error': return 'Transaction failed';
             default: return '';
         }
@@ -159,6 +173,19 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, poolAddre
                             </div>
                         </div>
 
+                        {/* Inco Security Status */}
+                        <div className="space-y-2">
+                            <SecurityStatusBanner isEncrypted={true} tokenSymbol="SOL" />
+                            {encryptedAmount && (
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span>🔒 Encrypted:</span>
+                                    <code className="text-emerald-400/70 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                        {formatEncryptedDisplay(encryptedAmount.encrypted, 12)}
+                                    </code>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Transaction Status */}
                         {txStatus !== 'idle' && (
                             <div className={`p-4 rounded-lg border ${txStatus === 'success'
@@ -193,7 +220,7 @@ export const DepositModal: FC<DepositModalProps> = ({ isOpen, onClose, poolAddre
 
                         {/* Info */}
                         <div className="text-xs text-muted-foreground">
-                            <p>⚡ This is an on-chain transaction requiring SOL for gas fees.</p>
+                            <p>⚡ Encrypted transaction executed on Solana. Gas fees paid in SOL.</p>
                         </div>
                     </div>
                 </div>

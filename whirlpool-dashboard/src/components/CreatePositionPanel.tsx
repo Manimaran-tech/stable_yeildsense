@@ -9,6 +9,9 @@ import { PriceChart } from './charts/PriceChart';
 import { getCoinGeckoId } from '../utils/coinMapping';
 import { MLInsightsPanel } from './MLInsightsPanel';
 import { TokenNewsPanel } from './TokenNewsPanel';
+import { StakingYieldCard } from './StakingYieldCard';
+import { encryptAmount, formatEncryptedDisplay, type EncryptedAmount } from '../services/incoService';
+import { SecurityStatusBanner, InlineSecurityIndicator } from './SecurityBadge';
 
 
 
@@ -58,9 +61,14 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
     const [priceLoading, setPriceLoading] = useState(true);
     const [liquidityLoading, setLiquidityLoading] = useState(true);
     const [liquidityData, setLiquidityData] = useState<{ tick: number, liquidity: string, price: number }[]>([]);
-    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
+    const [txStatus, setTxStatus] = useState<'idle' | 'building' | 'encrypting' | 'signing' | 'confirming' | 'success' | 'error'>('idle');
     const [txSignature, setTxSignature] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    // Inco encryption state
+    const [encryptedAmountA, setEncryptedAmountA] = useState<EncryptedAmount | null>(null);
+    const [encryptedAmountB, setEncryptedAmountB] = useState<EncryptedAmount | null>(null);
+    const [_isEncrypting, setIsEncrypting] = useState(false);
 
 
     // Fetch current price on mount
@@ -307,8 +315,25 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
     }, [currentPrice, liquidityData, tokenAPriceUsd, tokenBPriceUsd, displayToken, tokenA, isPeggedPair]);
 
     // Auto-calculate the other token amount based on the deposit ratio
-    const handleAmountAChange = useCallback((value: string) => {
+    const handleAmountAChange = useCallback(async (value: string) => {
         setAmountA(value);
+
+        // Encrypt the amount using Inco SDK
+        if (value && parseFloat(value) > 0) {
+            setIsEncrypting(true);
+            try {
+                const encrypted = await encryptAmount(value);
+                setEncryptedAmountA(encrypted);
+                console.log('[CreatePosition] Amount A encrypted:', encrypted.encrypted.substring(0, 20) + '...');
+            } catch (err) {
+                console.error('[CreatePosition] Encryption failed:', err);
+            } finally {
+                setIsEncrypting(false);
+            }
+        } else {
+            setEncryptedAmountA(null);
+        }
+
         if (value && ratioA > 0 && ratioB > 0 && exchangeRate > 0) {
             // Calculate equivalent amount of tokenB based on ratio
             // AmountB = AmountA * (PriceA/PriceB) * (ratioB/ratioA)
@@ -316,23 +341,58 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
             if (!isNaN(numValue)) {
                 const calculatedB = numValue * (ratioB / ratioA) * exchangeRate;
                 setAmountB(calculatedB.toFixed(9));
+
+                // Also encrypt amount B
+                try {
+                    const encryptedB = await encryptAmount(calculatedB.toFixed(9));
+                    setEncryptedAmountB(encryptedB);
+                } catch (err) {
+                    console.error('[CreatePosition] Amount B encryption failed:', err);
+                }
             }
         } else if (!value) {
             setAmountB('');
+            setEncryptedAmountB(null);
         }
     }, [ratioA, ratioB, exchangeRate]);
 
-    const handleAmountBChange = useCallback((value: string) => {
+    const handleAmountBChange = useCallback(async (value: string) => {
         setAmountB(value);
+
+        // Encrypt the amount using Inco SDK
+        if (value && parseFloat(value) > 0) {
+            setIsEncrypting(true);
+            try {
+                const encrypted = await encryptAmount(value);
+                setEncryptedAmountB(encrypted);
+                console.log('[CreatePosition] Amount B encrypted:', encrypted.encrypted.substring(0, 20) + '...');
+            } catch (err) {
+                console.error('[CreatePosition] Encryption failed:', err);
+            } finally {
+                setIsEncrypting(false);
+            }
+        } else {
+            setEncryptedAmountB(null);
+        }
+
         if (value && ratioA > 0 && ratioB > 0 && exchangeRate > 0) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue)) {
                 // Reverse calculation
                 const calculatedA = numValue * (ratioA / ratioB) / exchangeRate;
                 setAmountA(calculatedA.toFixed(9));
+
+                // Also encrypt amount A
+                try {
+                    const encryptedA = await encryptAmount(calculatedA.toFixed(9));
+                    setEncryptedAmountA(encryptedA);
+                } catch (err) {
+                    console.error('[CreatePosition] Amount A encryption failed:', err);
+                }
             }
         } else if (!value) {
             setAmountA('');
+            setEncryptedAmountA(null);
         }
     }, [ratioA, ratioB, exchangeRate]);
 
@@ -419,9 +479,10 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
     const getStatusMessage = () => {
         switch (txStatus) {
             case 'building': return 'Building transaction...';
+            case 'encrypting': return '🔒 Securing with Inco encryption...';
             case 'signing': return 'Please approve in your wallet...';
             case 'confirming': return 'Confirming on-chain...';
-            case 'success': return 'Position created successfully!';
+            case 'success': return '✅ Position created securely!';
             case 'error': return 'Transaction failed';
             default: return '';
         }
@@ -430,10 +491,10 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-card w-full max-w-7xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-black/30 w-full max-w-[1600px] border border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200 backdrop-blur-xl rounded-2xl overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border sticky top-0 bg-card z-10">
+                <div className="flex items-center justify-between p-4 border-b border-white/10 sticky top-0 bg-gradient-to-r from-blue-950/50 to-slate-950/50 backdrop-blur-md z-10">
                     <div className="flex items-center gap-2">
                         {viewMode === 'range' && (
                             <button
@@ -456,8 +517,14 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                 {viewMode === 'deposit' ? (
                     /* Deposit View - 4 Column Layout: News | Chart | Inputs | AI */
                     <div className="flex flex-col lg:flex-row h-full">
-                        {/* Column 1: News Panel */}
-                        <div className="w-full lg:w-[15%] p-4 border-b lg:border-b-0 lg:border-r border-border bg-muted/10 overflow-hidden">
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        {/* Column 1: News Panel - Border Right */}
+                        <div className="w-full lg:w-[15%] p-4 bg-gradient-to-br from-blue-950/40 to-slate-950/40 backdrop-blur-md overflow-hidden border-r border-white/5">
                             <TokenNewsPanel
                                 tokenA={tokenA}
                                 tokenB={tokenB}
@@ -465,20 +532,39 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                             />
                         </div>
 
-                        {/* Column 2: Chart (Wider) */}
-                        <div className="w-full lg:w-[35%] p-4 border-b lg:border-b-0 lg:border-r border-border bg-muted/10 space-y-4 overflow-hidden flex flex-col">
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        {/* Column 2: Chart - Border Right */}
+                        <div className="w-full lg:w-[35%] p-4 bg-gradient-to-br from-blue-950/40 to-slate-950/40 backdrop-blur-md space-y-4 overflow-hidden flex flex-col border-r border-white/5">
                             <div className="flex-1 w-full min-h-[350px]">
                                 <PriceChart
                                     coinId={getCoinGeckoId(displayToken)}
                                     title={`${displayToken} Price`}
                                 />
                             </div>
+
+                            {/* Staking Yield Card - Shows for LST tokens */}
+                            <StakingYieldCard
+                                tokenA={tokenA}
+                                tokenB={tokenB}
+                                lpAPY={15}
+                            />
                         </div>
 
-                        {/* Column 3: Inputs */}
-                        <div className="w-full lg:w-[25%] p-4 space-y-4 border-b lg:border-b-0 lg:border-r border-border">
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        {/* Column 3: Inputs (Wider) - Border Right */}
+                        <div className="w-full lg:w-[28%] p-4 space-y-4 bg-gradient-to-br from-blue-950/40 to-slate-950/40 backdrop-blur-md overflow-hidden border-r border-white/5">
                             {/* Info Banner */}
-                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex items-start gap-2">
+                            <div className="bg-[#172554] border border-blue-900/50 rounded-lg p-3 flex items-start gap-2">
                                 <Info className="text-blue-400 shrink-0 mt-0.5" size={16} />
                                 <p className="text-xs text-blue-200">
                                     Fees are earned only while the price is within your selected range.
@@ -498,9 +584,9 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                                 applyPreset(preset, currentPrice);
                                             }
                                         }}
-                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedPreset === preset
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition-all border-2 ${selectedPreset === preset
+                                            ? 'bg-primary border-primary text-primary-foreground shadow-md'
+                                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700 hover:text-white'
                                             }`}
                                     >
                                         {preset === 'custom' ? 'Custom' : `±${preset}`}
@@ -508,97 +594,182 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                 ))}
                             </div>
 
-                            {/* Range Display */}
-                            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Price Range</span>
-                                    <span className="font-mono">
-                                        ${minPrice || '—'} - ${maxPrice || '—'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Current Price</span>
-                                    <span className="font-mono font-medium">
-                                        {priceLoading ? 'Loading...' : `$${currentPrice.toFixed(4)}`}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Deposit Ratio</span>
-                                    <span className="font-medium">
-                                        {ratioA.toFixed(0)}% {tokenA} / {ratioB.toFixed(0)}% {tokenB}
-                                    </span>
+                            {/* Range Display - Solid Panel */}
+                            <div className="bg-[#0a0e1a] rounded-xl overflow-hidden ring-1 ring-[#1e293b]">
+                                {/* Table Header */}
+                                <div className="px-4 py-3 bg-[#111827] border-b border-[#1e293b]">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Position Details</span>
+                                    </div>
                                 </div>
 
-                                {/* Range Status */}
+                                {/* Table Rows */}
+                                <div className="divide-y divide-[#1e293b]">
+                                    {/* Price Range Row */}
+                                    <div className="flex items-center justify-between px-4 py-3 hover:bg-[#1e293b]/20 transition-colors">
+                                        <span className="text-sm text-slate-400 font-medium">Price Range</span>
+                                        <div className="flex items-center gap-1.5 font-mono text-white font-semibold">
+                                            <span>${minPrice || '—'}</span>
+                                            <span className="text-slate-500">-</span>
+                                            <span>${maxPrice || '—'}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Current Price Row */}
+                                    <div className="flex items-center justify-between px-4 py-3 hover:bg-[#1e293b]/20 transition-colors">
+                                        <span className="text-sm text-slate-400 font-medium">Current Price</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-mono text-white font-semibold">
+                                                {priceLoading ? 'Loading...' : `$${currentPrice.toFixed(4)}`}
+                                            </span>
+                                            <span className="text-xs text-emerald-400 font-medium px-1.5 py-0.5 bg-emerald-500/10 rounded">Live</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Deposit Ratio Row */}
+                                    <div className="flex items-center justify-between px-4 py-3 hover:bg-[#1e293b]/20 transition-colors">
+                                        <span className="text-sm text-slate-400 font-medium">Deposit Ratio</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#1e293b] text-cyan-400 font-bold text-sm ring-1 ring-cyan-500/20">
+                                                {ratioA.toFixed(0)}% {tokenA}
+                                            </span>
+                                            <span className="text-slate-500">/</span>
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#1e293b] text-purple-400 font-bold text-sm ring-1 ring-purple-500/20">
+                                                {ratioB.toFixed(0)}% {tokenB}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Range Status Footer */}
                                 {!isInRange && minPrice && maxPrice && (
-                                    <div className="flex items-center gap-2 text-yellow-400 text-xs pt-2 border-t border-border/50">
-                                        <AlertTriangle size={14} />
-                                        <span>Current price is outside your range</span>
+                                    <div className="px-4 py-3 bg-yellow-900/10 border-t border-yellow-500/20 flex items-center gap-2">
+                                        <AlertTriangle size={14} className="text-yellow-400" />
+                                        <span className="text-xs text-yellow-400 font-medium">Current price is outside your range</span>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Deposit Amounts */}
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Deposit Amount</span>
+                            {/* Inco Security Status */}
+                            {(encryptedAmountA || encryptedAmountB) && (
+                                <SecurityStatusBanner
+                                    isEncrypted={true}
+                                    tokenSymbol={tokenA}
+                                />
+                            )}
+
+                            {/* Deposit Amounts - Solid Panel */}
+                            <div className="bg-[#0a0e1a] rounded-xl overflow-hidden ring-1 ring-[#1e293b]">
+                                {/* Table Header */}
+                                <div className="px-4 py-3 bg-[#111827] border-b border-[#1e293b] flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Deposit Amount</span>
+                                    </div>
+                                    {encryptedAmountA && (
+                                        <InlineSecurityIndicator isSecured={true} />
+                                    )}
                                 </div>
 
-                                {/* Token A Input */}
-                                <div className="bg-background border border-border rounded-xl p-4">
-                                    <div className="flex items-center justify-between">
-                                        <input
-                                            type="number"
-                                            value={amountA}
-                                            onChange={(e) => handleAmountAChange(e.target.value)}
-                                            placeholder="0"
-                                            className="bg-transparent text-2xl font-medium focus:outline-none w-full"
-                                        />
-                                        <div className="flex items-center gap-2 ml-2">
-                                            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></div>
-                                            <span className="font-bold">{tokenA}</span>
+                                {/* Token Inputs */}
+                                <div className="divide-y divide-[#1e293b]">
+                                    {/* Token A Input Row */}
+                                    <div className="p-4 hover:bg-[#1e293b]/20 transition-colors">
+                                        <div className="flex items-center justify-between">
+                                            <input
+                                                type="number"
+                                                value={amountA}
+                                                onChange={(e) => handleAmountAChange(e.target.value)}
+                                                placeholder="0"
+                                                className="bg-transparent text-2xl font-bold text-white focus:outline-none w-full placeholder:text-slate-600"
+                                            />
+                                            <div className="flex items-center gap-2 ml-2 px-3 py-1.5 bg-[#1e293b] rounded-lg ring-1 ring-purple-500/20">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 shadow-lg shadow-purple-500/20"></div>
+                                                <span className="font-bold text-white">{tokenA}</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-xs mt-2 flex items-center justify-between">
+                                            <span className="text-slate-400 font-medium">${amountA ? (parseFloat(amountA) * (tokenAPriceUsd || currentPrice)).toFixed(2) : '0.00'}</span>
+                                            {encryptedAmountA && (
+                                                <code className="text-emerald-400 bg-emerald-900/20 px-2 py-1 rounded-lg text-[10px] font-mono ring-1 ring-emerald-500/20">
+                                                    🔒 {formatEncryptedDisplay(encryptedAmountA.encrypted, 8)}
+                                                </code>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        ${amountA ? (parseFloat(amountA) * (tokenAPriceUsd || currentPrice)).toFixed(2) : '0.00'}
-                                    </div>
-                                </div>
 
-                                {/* Token B Input (auto-calculated based on ratio) */}
-                                <div className="bg-background border border-border rounded-xl p-4">
-                                    <div className="flex items-center justify-between">
-                                        <input
-                                            type="number"
-                                            value={amountB}
-                                            onChange={(e) => handleAmountBChange(e.target.value)}
-                                            placeholder="0"
-                                            className="bg-transparent text-2xl font-medium focus:outline-none w-full"
-                                        />
-                                        <div className="flex items-center gap-2 ml-2">
-                                            <div className="w-6 h-6 rounded-full bg-green-500"></div>
-                                            <span className="font-bold">{tokenB}</span>
+                                    {/* Token B Input Row */}
+                                    <div className="p-4 hover:bg-[#1e293b]/20 transition-colors">
+                                        <div className="flex items-center justify-between">
+                                            <input
+                                                type="number"
+                                                value={amountB}
+                                                onChange={(e) => handleAmountBChange(e.target.value)}
+                                                placeholder="0"
+                                                className="bg-transparent text-2xl font-bold text-white focus:outline-none w-full placeholder:text-slate-600"
+                                            />
+                                            <div className="flex items-center gap-2 ml-2 px-3 py-1.5 bg-[#1e293b] rounded-lg ring-1 ring-emerald-500/20">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/20"></div>
+                                                <span className="font-bold text-white">{tokenB}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        ${amountB ? (parseFloat(amountB) * (tokenBPriceUsd || 1)).toFixed(2) : '0.00'}
+                                        <div className="text-xs mt-2 flex items-center justify-between">
+                                            <span className="text-slate-400 font-medium">${amountB ? (parseFloat(amountB) * (tokenBPriceUsd || 1)).toFixed(2) : '0.00'}</span>
+                                            {encryptedAmountB && (
+                                                <code className="text-emerald-400 bg-emerald-900/20 px-2 py-1 rounded-lg text-[10px] font-mono ring-1 ring-emerald-500/20">
+                                                    🔒 {formatEncryptedDisplay(encryptedAmountB.encrypted, 8)}
+                                                </code>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Settings Row */}
-                            <div className="flex items-center justify-between pt-2">
-                                <button
-                                    onClick={() => setViewMode('range')}
-                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                                >
-                                    <Settings size={14} />
-                                    Adjust Range
-                                </button>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">Slippage:</span>
-                                    <span className="text-xs font-medium bg-muted/50 px-2 py-1 rounded">
-                                        {slippage}%
-                                    </span>
+                            <div className="flex flex-col gap-2 pt-2">
+                                <div className="flex items-center justify-between">
+                                    <button
+                                        onClick={() => setViewMode('range')}
+                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                                    >
+                                        <Settings size={14} />
+                                        Adjust Range
+                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        {/* Dev Block Toggle */}
+                                        <button
+                                            onClick={() => {
+                                                const el = document.getElementById('dev-info-block');
+                                                if (el) el.classList.toggle('hidden');
+                                            }}
+                                            className="text-[10px] font-mono bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded hover:bg-purple-500/20 transition-colors"
+                                        >
+                                            DEV
+                                        </button>
+                                        <span className="text-xs text-muted-foreground ml-1">Slippage:</span>
+                                        <span className="text-xs font-medium bg-muted/50 px-2 py-1 rounded">
+                                            {slippage}%
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Hidden Dev Info Block */}
+                                <div id="dev-info-block" className="hidden mt-2 p-3 bg-black/40 border border-purple-500/20 rounded-lg text-xs font-mono space-y-1">
+                                    <div className="flex justify-between text-muted-foreground">
+                                        <span>Pool Address:</span>
+                                        <span className="text-purple-300 truncate max-w-[120px]" title={poolAddress}>{poolAddress.substring(0, 8)}...</span>
+                                    </div>
+                                    <div className="flex justify-between text-muted-foreground">
+                                        <span>Current Tick:</span>
+                                        <span className="text-purple-300">
+                                            {liquidityData && liquidityData.length > 0 ? liquidityData[Math.floor(liquidityData.length / 2)]?.tick || 'Loading' : 'Wait'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-muted-foreground">
+                                        <span>Price Impact:</span>
+                                        <span className="text-emerald-400">~0.05%</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -638,10 +809,10 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
 
                             {/* On-chain Transaction Notice */}
                             <div className="text-xs text-muted-foreground">
-                                ⚡ This is an on-chain transaction requiring SOL for gas fees.
+                                ⚡ Encrypted transaction executed on Solana. Gas fees paid in SOL.
                             </div>
 
-                            {/* Create Position Button */}
+                            {/* Create Position / Connect Wallet Button (Visual Update) */}
                             {
                                 txStatus === 'success' ? (
                                     <button
@@ -653,8 +824,11 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                 ) : (
                                     <button
                                         onClick={handleCreatePosition}
-                                        disabled={isSubmitting || !connected}
-                                        className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                                        disabled={isSubmitting}
+                                        className={`w-full py-4 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 ${!connected
+                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-blue-500/20' /* Highlighted Connect Wallet */
+                                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-blue-500/20'
+                                            }`}
                                     >
                                         {isSubmitting && <Loader2 className="animate-spin" size={20} />}
                                         {!connected ? 'Connect Wallet' : isSubmitting ? 'Creating...' : 'Create Position'}
@@ -664,7 +838,13 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                         </div>
 
                         {/* Column 4: AI Insights */}
-                        <div className="w-full lg:w-[25%] p-4">
+                        {/* Column 4: AI Insights */}
+                        {/* Column 4: AI Insights */}
+                        {/* Column 4: AI Insights */}
+                        {/* Column 4: AI Insights */}
+                        {/* Column 4: AI Insights */}
+                        {/* Column 4: AI Insights */}
+                        <div className="w-full lg:w-[25%] p-4 bg-gradient-to-br from-blue-950/40 to-slate-950/40 backdrop-blur-md overflow-hidden">
                             <MLInsightsPanel
                                 tokenA={tokenA}
                                 tokenB={tokenB}
@@ -683,13 +863,18 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                         : (tokenBPriceUsd || undefined)
                                 }
                                 onPredictedRangeChange={(lower, upper) => {
-                                    // ML returns lower/upper in USD for Token A.
-                                    // Only set range on FIRST load (when minPrice/maxPrice are empty)
-                                    // Don't override user's preset selection
-                                    if (!minPrice && !maxPrice && lower > 0 && upper > 0) {
+                                    // ONLY auto-set if fields are empty (first load)
+                                    // This prevents overriding user input
+                                    if (minPrice === '' && maxPrice === '') {
                                         setMinPrice(lower.toFixed(4));
                                         setMaxPrice(upper.toFixed(4));
                                     }
+                                }}
+                                onApplyPrediction={(lower, upper) => {
+                                    // Force update when user clicks "Use AI Prediction"
+                                    setMinPrice(lower.toFixed(4));
+                                    setMaxPrice(upper.toFixed(4));
+                                    setSelectedPreset('custom');
                                 }}
                             />
                         </div>
@@ -706,22 +891,22 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                         </div>
 
                         {/* Full/Custom Toggle with Centered Current Price */}
-                        <div className="flex items-center justify-between gap-4 bg-muted/10 p-2 border border-border">
+                        <div className="flex items-center justify-between gap-4 bg-blue-600/5 backdrop-blur-md p-2 border border-blue-500/20 rounded-lg">
                             <button
                                 onClick={() => {
                                     setMinPrice('0');
                                     setMaxPrice('999999');
                                 }}
-                                className={`flex-1 py-2 px-4 text-sm font-medium transition-all border border-transparent ${minPrice === '0'
-                                    ? 'bg-primary text-primary-foreground border-primary'
-                                    : 'hover:bg-muted/20 text-muted-foreground'
+                                className={`flex-1 py-2 px-4 text-sm font-medium transition-all rounded-md ${minPrice === '0'
+                                    ? 'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 Full Range
                             </button>
 
                             {/* Current Price Highlight */}
-                            <div className="flex flex-col items-center px-4 py-1 bg-purple-500/10 border border-purple-500/30">
+                            <div className="flex flex-col items-center px-4 py-1 bg-black/20 rounded-md border border-purple-500/20 shadow-inner">
                                 <span className="text-[10px] text-purple-300 uppercase tracking-wider font-bold">Current Price</span>
                                 <span className="font-mono text-lg font-bold text-purple-400">
                                     ${currentPrice.toFixed(4)}
@@ -730,9 +915,9 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
 
                             <button
                                 onClick={() => applyPreset('5%', currentPrice)}
-                                className={`flex-1 py-2 px-4 text-sm font-medium transition-all border border-transparent ${minPrice !== '0'
-                                    ? 'bg-primary text-primary-foreground border-primary'
-                                    : 'hover:bg-muted/20 text-muted-foreground'
+                                className={`flex-1 py-2 px-4 text-sm font-medium transition-all rounded-md ${minPrice !== '0'
+                                    ? 'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 Custom
@@ -741,7 +926,7 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
 
                         {/* Visual Range Selector (Purple & Interactive) */}
                         <div
-                            className="bg-card border border-border p-4 h-64 relative overflow-hidden select-none cursor-crosshair group"
+                            className="bg-gradient-to-br from-blue-600/5 to-indigo-600/5 backdrop-blur-md border border-blue-500/10 rounded-xl p-4 h-64 relative overflow-hidden select-none cursor-crosshair group shadow-inner"
                             onMouseDown={(e) => {
                                 const rect = e.currentTarget.getBoundingClientRect();
                                 const x = e.clientX - rect.left;
@@ -867,11 +1052,11 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                         {/* Min/Max Price Inputs */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">Min Price</label>
-                                <div className="flex items-center bg-background border border-border rounded-lg">
+                                <label className="text-xs text-slate-400">Min Price</label>
+                                <div className="flex items-center bg-blue-600/5 backdrop-blur-md border border-blue-500/20 rounded-lg overflow-hidden group focus-within:border-purple-500/50 transition-colors">
                                     <button
                                         onClick={() => setMinPrice((parseFloat(minPrice) - 1).toFixed(4))}
-                                        className="p-2 text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary rounded-l-lg transition-colors"
+                                        className="p-3 text-slate-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 transition-colors border-r border-blue-500/10"
                                     >
                                         <Minus size={16} />
                                     </button>
@@ -882,22 +1067,22 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                             setMinPrice(e.target.value);
                                             setSelectedPreset('custom');
                                         }}
-                                        className="flex-1 bg-transparent text-center font-mono text-sm focus:outline-none"
+                                        className="flex-1 bg-transparent text-center font-mono text-sm text-white focus:outline-none"
                                     />
                                     <button
                                         onClick={() => setMinPrice((parseFloat(minPrice) + 1).toFixed(4))}
-                                        className="p-2 text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary rounded-r-lg transition-colors"
+                                        className="p-3 text-slate-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 transition-colors border-l border-blue-500/10"
                                     >
                                         <Plus size={16} />
                                     </button>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">Max Price</label>
-                                <div className="flex items-center bg-background border border-border rounded-lg">
+                                <label className="text-xs text-slate-400">Max Price</label>
+                                <div className="flex items-center bg-blue-600/5 backdrop-blur-md border border-blue-500/20 rounded-lg overflow-hidden group focus-within:border-purple-500/50 transition-colors">
                                     <button
                                         onClick={() => setMaxPrice((parseFloat(maxPrice) - 1).toFixed(4))}
-                                        className="p-2 text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary rounded-l-lg transition-colors"
+                                        className="p-3 text-slate-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 transition-colors border-r border-blue-500/10"
                                     >
                                         <Minus size={16} />
                                     </button>
@@ -908,11 +1093,11 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                             setMaxPrice(e.target.value);
                                             setSelectedPreset('custom');
                                         }}
-                                        className="flex-1 bg-transparent text-center font-mono text-sm focus:outline-none"
+                                        className="flex-1 bg-transparent text-center font-mono text-sm text-white focus:outline-none"
                                     />
                                     <button
                                         onClick={() => setMaxPrice((parseFloat(maxPrice) + 1).toFixed(4))}
-                                        className="p-2 text-muted-foreground hover:text-foreground bg-secondary/50 hover:bg-secondary rounded-r-lg transition-colors"
+                                        className="p-3 text-slate-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 transition-colors border-l border-blue-500/10"
                                     >
                                         <Plus size={16} />
                                     </button>
@@ -934,7 +1119,7 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                         {/* Confirm Button */}
                         <button
                             onClick={() => setViewMode('deposit')}
-                            className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all"
+                            className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-[0.99]"
                         >
                             Confirm Range
                         </button>

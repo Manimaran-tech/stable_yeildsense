@@ -543,5 +543,77 @@ async def get_token_news(token: str):
         "sentiment": sentiment_data
     }
 
+# -------------------------------------------------------------------------
+# STAKING APY ENDPOINTS
+# -------------------------------------------------------------------------
+from staking_api import get_staking_apy, get_token_staking_apy, is_lst_token, calculate_combined_yield
+
+@app.get("/api/staking/apy")
+async def staking_apy():
+    """
+    Get current staking APY for all supported LSTs.
+    Returns real-time staking yields for JupSOL, mSOL, jitoSOL, bSOL.
+    """
+    try:
+        data = await get_staking_apy()
+        return {
+            "success": True,
+            **data
+        }
+    except Exception as e:
+        print(f"[!] Staking APY error: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "lsts": {}
+        }
+
+@app.get("/api/staking/apy/{token}")
+async def token_staking_apy(token: str):
+    """
+    Get staking APY for a specific LST token.
+    Returns null if token is not an LST.
+    """
+    try:
+        if not is_lst_token(token):
+            return {
+                "success": True,
+                "is_lst": False,
+                "token": token.upper(),
+                "apy": None
+            }
+        
+        apy_data = await get_token_staking_apy(token)
+        return {
+            "success": True,
+            "is_lst": True,
+            "token": token.upper(),
+            "apy": apy_data
+        }
+    except Exception as e:
+        print(f"[!] Token staking APY error: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/api/staking/combined-yield")
+async def combined_yield(staking_apy: float = Body(...), lp_apy: float = Body(...)):
+    """
+    Calculate combined yield from staking + LP.
+    """
+    try:
+        result = calculate_combined_yield(staking_apy, lp_apy)
+        return {
+            "success": True,
+            **result
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
