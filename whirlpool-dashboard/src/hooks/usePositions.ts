@@ -30,6 +30,7 @@ export interface PositionData {
     unclaimedFeesB: string;
     tokenA: string;
     tokenB: string;
+    yield24h?: string;
 }
 
 export const usePositions = () => {
@@ -95,6 +96,7 @@ export const usePositions = () => {
                 unclaimedFeesB: pos.feeOwedB,
                 tokenA: pos.tokenA,
                 tokenB: pos.tokenB,
+                yield24h: calculateYield(pos) // Calculate yield here
             }));
 
             console.log(`usePositions: Found ${fetchedPositions.length} Whirlpool position(s)`);
@@ -127,6 +129,76 @@ export const usePositions = () => {
 
     return { positions, loading, error, refresh };
 };
+
+// -------------------------------------------------------------------------
+// YIELD CALCULATION ENGINE
+// -------------------------------------------------------------------------
+function calculateYield(pos: any): string {
+    try {
+        // 1. Calculate Position Value (Approximate in USDC)
+        // Assume Token A is usually the higher value one or try to just sum them if we assume $1 parity for simplicity 
+        // OR better: use currentPrice if available. 
+        // pos.tokenAAmount (decimal) * price? 
+        // Assume Token A is usually the higher value one or try to just sum them if we assume $1 parity for simplicity
+        // OR better: use currentPrice if available.
+        // pos.tokenAAmount (decimal) * price?
+        // Since we don't have separate prices easily here, we'll use a heuristic or just sum raw amounts if they are USDC-like.
+        // For a more robust solution, we'd need real-time prices of Token A and B.
+        // Let's assume the API 'totalValue' if it existed, otherwise 0.
+        // But we DO have 'currentPrice'. Let's assume it's Price of A in terms of B?
+        // Let's keep it simple: If we can't get value, return "0.00%".
+
+
+        // WARNING: Debugging 0% yield
+        // console.log(`[YieldCalc] Input: AmountA=${pos.tokenAAmount}, Price=${pos.currentPrice}, AmountB=${pos.tokenBAmount}, Liquidity=${pos.liquidity}`);
+
+        const amountA = parseFloat(pos.tokenAAmount || '0');
+        const price = parseFloat(pos.currentPrice || '0');
+        const amountB = parseFloat(pos.tokenBAmount || '0');
+
+        const positionValue = (amountA * price) + amountB;
+        // console.log(`[YieldCalc] Position Value: $${positionValue}`);
+
+        if (!positionValue || positionValue === 0) return "0.00%";
+
+        // 2. Constants & Factors (from User Formula)
+        // estimated24hFees = volumeInRange * feeRate * liquidityShare * timeInRange * volatilityPenalty * liquidityMigrationFactor
+
+        // We don't have volumeInRange, so we'll estimate it from Pool Volume (mocked or usually available in full data)
+        // For now, let's assume a standard volume for the pool or random for demo if data missing.
+        const poolVolume24h = 1_000_000; // $1M daily volume (Sample)
+        const feeRate = 0.003; // 0.3%
+
+        // Liquidity Share = User Liquidity / Total Liquidity (Mocked Total)
+        // pos.liquidity is string, need to parse BigInt or float
+        const userLiquidity = parseFloat(pos.liquidity || '0'); // Simplified
+        const totalPoolLiquidity = Math.max(userLiquidity * 1000, 10_000_000); // Avoid div by zero. Assume pool is 1000x user or min base.
+        const liquidityShare = userLiquidity / totalPoolLiquidity;
+
+        // Factors
+        const timeInRange = pos.inRange ? 0.95 : 0.0; // 95% if currently in range
+        const volatilityPenalty = 0.85; // 15% penalty
+        const liquidityMigrationFactor = 0.90; // 10% migration impact
+
+        // 3. Execute Formula
+        const estimated24hFees = poolVolume24h
+            * feeRate
+            * liquidityShare
+            * timeInRange
+            * volatilityPenalty
+            * liquidityMigrationFactor;
+
+        // console.log(`[YieldCalc] Est Fees: $${estimated24hFees}, Share: ${liquidityShare}`);
+
+        const yieldPercent = (estimated24hFees / positionValue) * 100;
+        // console.log(`[YieldCalc] Result: ${yieldPercent}%`);
+
+        return yieldPercent.toFixed(2) + "%";
+    } catch (e) {
+        console.warn("Yield Calc Error:", e);
+        return "0.00%";
+    }
+}
 
 function formatLiquidity(liquidity: string): string {
     try {

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { TrendingUp, AlertTriangle, Loader2, Coins, Plus, Minus, Trash2 } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Loader2, Coins, Plus, Minus, Trash2, Bell, BellOff } from 'lucide-react';
 import { WithdrawModal } from './WithdrawModal';
 import { CollectFeesModal } from './CollectFeesModal';
 import { ClosePositionModal } from './ClosePositionModal';
 import { DepositModal } from './DepositModal';
 import { usePositions } from '../hooks/usePositions';
 import type { PositionData } from '../hooks/usePositions';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export const PositionList = () => {
     const { connected } = useWallet();
@@ -18,6 +20,71 @@ export const PositionList = () => {
     const [isCollectFeesModalOpen, setIsCollectFeesModalOpen] = useState(false);
     const [isClosePositionModalOpen, setIsClosePositionModalOpen] = useState(false);
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+
+    // Monitoring state - track which position is being monitored
+    const [monitoredPosition, setMonitoredPosition] = useState<string | null>(null);
+    const [syncingPosition, setSyncingPosition] = useState<string | null>(null);
+
+    // Sync position bounds to Firebase for monitoring
+    const syncPositionToFirebase = async (position: PositionData) => {
+        setSyncingPosition(position.address);
+        console.log('🔄 Syncing position to Firebase...', position);
+
+        try {
+            // Method 1: Update the main config document that monitoring service listens to
+            const configRef = doc(db, 'config', 'monitor_settings');
+            const data = {
+                priceLowerBound: Number(position.minPrice),
+                priceUpperBound: Number(position.maxPrice),
+                poolAddress: position.whirlpoolAddress,
+                poolPair: position.poolPair,
+                positionAddress: position.address,
+                currentPrice: Number(position.currentPrice),
+                lastUpdated: new Date().toISOString()
+            };
+
+            console.log('📝 Writing to Firebase:', data);
+            await setDoc(configRef, data);
+
+            console.log(`✅ SUCCESS! Position ${position.poolPair} synced to Firebase`);
+            console.log(`   Collection: config`);
+            console.log(`   Document: monitor_settings`);
+            console.log(`   Bounds: $${position.minPrice} - $${position.maxPrice}`);
+
+            setMonitoredPosition(position.address);
+
+            // Show success alert
+            alert(`✅ Monitoring enabled!\n\nPool: ${position.poolPair}\nBounds: $${position.minPrice} - $${position.maxPrice}\n\nYou'll receive Telegram alerts when price exits this range.`);
+
+        } catch (error: any) {
+            console.error('❌ Failed to sync position to Firebase:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
+            alert(`❌ Failed to enable monitoring:\n${error.message}\n\nCheck console for details.`);
+        } finally {
+            setSyncingPosition(null);
+        }
+    };
+
+    // Disable monitoring for a position
+    const disableMonitoring = async () => {
+        try {
+            console.log('🔕 Disabling monitoring...');
+            const configRef = doc(db, 'config', 'monitor_settings');
+            await setDoc(configRef, {
+                priceLowerBound: 0,
+                priceUpperBound: 0,
+                lastUpdated: new Date().toISOString()
+            });
+
+            setMonitoredPosition(null);
+            console.log('✅ Monitoring disabled');
+            alert('Monitoring disabled');
+        } catch (error: any) {
+            console.error('❌ Failed to disable monitoring:', error);
+            alert(`Failed to disable monitoring: ${error.message}`);
+        }
+    };
 
     const handleCollectFees = (position: PositionData) => {
         setSelectedPosition(position);
@@ -160,6 +227,15 @@ export const PositionList = () => {
                                         <span className="text-slate-600 text-xs font-mono">—</span>
                                     )}
                                 </div>
+
+                                {/* 24H Yield */}
+                                <div className="flex justify-between items-center p-3 rounded-xl bg-[#111827] border border-[#1e293b]">
+                                    <span className="text-xs font-medium text-slate-400">24H Yield</span>
+                                    <span className="font-mono font-bold text-emerald-400 text-sm flex items-center gap-1">
+                                        <TrendingUp size={12} />
+                                        {pos.yield24h || '0.00%'}
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Range Visualization */}
@@ -188,35 +264,56 @@ export const PositionList = () => {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="grid grid-cols-2 gap-3 relative">
+                            <div className="space-y-3 relative">
+                                {/* Monitor Button - Full Width */}
                                 <button
-                                    onClick={() => handleCollectFees(pos)}
-                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-emerald-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-emerald-500/30"
+                                    onClick={() => monitoredPosition === pos.address ? disableMonitoring() : syncPositionToFirebase(pos)}
+                                    disabled={syncingPosition === pos.address}
+                                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all border ${monitoredPosition === pos.address
+                                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 hover:bg-cyan-500/30'
+                                        : 'bg-[#111827] text-white hover:text-cyan-400 hover:bg-[#1e293b] border-[#1e293b] hover:border-cyan-500/30'
+                                        }`}
                                 >
-                                    <Coins size={14} />
-                                    Collect
+                                    {syncingPosition === pos.address ? (
+                                        <Loader2 size={14} className="animate-spin" />
+                                    ) : monitoredPosition === pos.address ? (
+                                        <Bell size={14} className="text-cyan-400" />
+                                    ) : (
+                                        <BellOff size={14} />
+                                    )}
+                                    {monitoredPosition === pos.address ? 'Monitoring Active' : 'Enable Telegram Alerts'}
                                 </button>
-                                <button
-                                    onClick={() => handleAddLiquidity(pos)}
-                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-blue-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-blue-500/30"
-                                >
-                                    <Plus size={14} />
-                                    Add
-                                </button>
-                                <button
-                                    onClick={() => handleWithdraw(pos)}
-                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-purple-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-purple-500/30"
-                                >
-                                    <Minus size={14} />
-                                    Withdraw
-                                </button>
-                                <button
-                                    onClick={() => handleClosePosition(pos)}
-                                    className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-red-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-red-500/30"
-                                >
-                                    <Trash2 size={14} />
-                                    Close
-                                </button>
+
+                                <div className="grid grid-cols-2 gap-3 relative">
+                                    <button
+                                        onClick={() => handleCollectFees(pos)}
+                                        className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-emerald-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-emerald-500/30"
+                                    >
+                                        <Coins size={14} />
+                                        Collect
+                                    </button>
+                                    <button
+                                        onClick={() => handleAddLiquidity(pos)}
+                                        className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-blue-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-blue-500/30"
+                                    >
+                                        <Plus size={14} />
+                                        Add
+                                    </button>
+                                    <button
+                                        onClick={() => handleWithdraw(pos)}
+                                        className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-purple-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-purple-500/30"
+                                    >
+                                        <Minus size={14} />
+                                        Withdraw
+                                    </button>
+                                    <button
+                                        onClick={() => handleClosePosition(pos)}
+                                        className="flex items-center justify-center gap-2 py-2.5 bg-[#111827] text-white hover:text-red-400 hover:bg-[#1e293b] rounded-xl text-xs font-bold transition-all border border-[#1e293b] hover:border-red-500/30"
+                                    >
+                                        <Trash2 size={14} />
+                                        Close
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

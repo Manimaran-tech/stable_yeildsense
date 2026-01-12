@@ -149,6 +149,22 @@ export async function getPositionsLegacy(walletAddress: string): Promise<Positio
                     tokenBInfo.mint.toBase58()
                 );
 
+                // Calculate token amounts from liquidity
+                // We simulate withdrawing all liquidity to get estimated amounts
+                const tokenExtensionCtx = await TokenExtensionUtil.buildTokenExtensionContext(
+                    ctx.fetcher,
+                    whirlpoolData,
+                    IGNORE_CACHE
+                );
+
+                const quote = decreaseLiquidityQuoteByLiquidity(
+                    positionData.liquidity,
+                    Percentage.fromFraction(0, 100),
+                    position,
+                    whirlpool,
+                    tokenExtensionCtx
+                );
+
                 positionInfos.push({
                     positionMint: positionData.positionMint.toBase58(),
                     positionAddress: position.getAddress().toBase58(),
@@ -156,8 +172,8 @@ export async function getPositionsLegacy(walletAddress: string): Promise<Positio
                     tickLowerIndex: positionData.tickLowerIndex,
                     tickUpperIndex: positionData.tickUpperIndex,
                     liquidity: positionData.liquidity.toString(),
-                    tokenAAmount: "0", // Estimate not calculated here execution speed
-                    tokenBAmount: "0",
+                    tokenAAmount: quote.tokenEstA.toString(),
+                    tokenBAmount: quote.tokenEstB.toString(),
                     feeOwedA: positionData.feeOwedA.toString(), // Keep raw for now as per interface
                     feeOwedB: positionData.feeOwedB.toString(),
                     currentPrice: currentPrice.toFixed(4),

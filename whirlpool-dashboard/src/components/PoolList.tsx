@@ -213,11 +213,13 @@ export const PoolList = () => {
                 const selectedPool = pools.find(p => p.address === selectedPoolAddress);
                 return (
                     <CreatePositionPanel
+                        key={selectedPoolAddress}
                         isOpen={isDepositModalOpen}
                         onClose={() => setIsDepositModalOpen(false)}
                         poolAddress={selectedPoolAddress}
                         tokenA={selectedPool?.tokenA || 'SOL'}
                         tokenB={selectedPool?.tokenB || 'USDC'}
+                        feeTier={selectedPool?.feeTier || 0.30}
                     />
                 );
             })()}

@@ -49,7 +49,7 @@ async def fetch_jitosol_apy() -> Dict:
     API returns arrays of {data, date} objects for each metric.
     """
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=3.0) as client:
             # Jito Stake Pool API
             response = await client.get(
                 'https://kobe.mainnet.jito.network/api/v1/stake_pool_stats',
@@ -98,7 +98,7 @@ async def fetch_msol_apy() -> Dict:
     Fetch real-time mSOL APY from Marinade's API.
     """
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=3.0) as client:
             # Marinade Finance API
             response = await client.get(
                 'https://api.marinade.finance/msol/apy/1y',
@@ -133,23 +133,9 @@ async def fetch_sanctum_lst_apy() -> Dict:
     Fetch LST APY data from Sanctum's unified API.
     Sanctum aggregates data for multiple LSTs including JupSOL, bSOL.
     """
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            # Sanctum LST API
-            response = await client.get(
-                'https://sanctum-extra-api.ngrok.dev/v1/apy/latest',
-                headers={'Accept': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    'apys': data.get('apys', {}),
-                    'source': 'sanctum_api'
-                }
-    except Exception as e:
-        logger.warning(f"Sanctum API failed: {e}")
-    
+    # NOTE: Configured endpoints (ngrok/extra-api) are currently unreliable or require auth.
+    # Returning None immediately for instant fallback to "Estimated" calculation
+    # to prevent UI delays.
     return None
 
 
@@ -157,25 +143,9 @@ async def fetch_base_staking_apy() -> float:
     """
     Fetch base Solana staking APY from multiple sources.
     """
+    # 1. Try RPC Inflation Rate (Fastest & Most Reliable)
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            # Try Solana Beach API
-            response = await client.get(
-                'https://api.solanabeach.io/v1/staking/stats',
-                headers={'Accept': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                apy = data.get('averageApy') or data.get('apy')
-                if apy:
-                    return float(apy)
-    except Exception as e:
-        logger.warning(f"Solana Beach API failed: {e}")
-    
-    # Fallback: Calculate from epoch info
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=3.0) as client:
             # Use Helius or public RPC to get epoch info
             response = await client.post(
                 'https://api.mainnet-beta.solana.com',
@@ -190,11 +160,27 @@ async def fetch_base_staking_apy() -> float:
             if response.status_code == 200:
                 data = response.json()
                 result = data.get('result', {})
-                # Total inflation rate gives approximate staking yield
+                # Total inflation rate approximately tracks staking APY
                 total = result.get('total', 0.065)
                 return round(total * 100, 2)
     except Exception as e:
         logger.warning(f"RPC inflation rate failed: {e}")
+
+    # 2. Fallback: Solana Beach API
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(
+                'https://api.solanabeach.io/v1/staking/stats',
+                headers={'Accept': 'application/json'}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                apy = data.get('averageApy') or data.get('apy')
+                if apy:
+                    return float(apy)
+    except Exception as e:
+        logger.warning(f"Solana Beach API failed: {e}")
     
     return 6.5  # Default fallback
 

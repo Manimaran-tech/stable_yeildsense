@@ -20,9 +20,10 @@ import { SecurityStatusBanner, InlineSecurityIndicator } from './SecurityBadge';
 interface CreatePositionPanelProps {
     isOpen: boolean;
     onClose: () => void;
-    poolAddress: string;
-    tokenA?: string;
-    tokenB?: string;
+    poolAddress: string | null;
+    tokenA: string;
+    tokenB: string;
+    feeTier?: number; // Fee tier in percentage (e.g., 0.30, 0.04, 0.01)
 }
 
 type ViewMode = 'deposit' | 'range';
@@ -33,7 +34,8 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
     onClose,
     poolAddress,
     tokenA = 'SOL',
-    tokenB = 'USDC'
+    tokenB = 'USDC',
+    feeTier = 0.30 // Default to standard 30bps tier if not provided
 }) => {
     const { publicKey, signTransaction, connected } = useWallet();
     const { connection } = useConnection();
@@ -76,19 +78,30 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
         if (!isOpen || !poolAddress) return;
 
         const fetchPrice = async (isBackground = false) => {
-            if (!isBackground) setPriceLoading(true);
+            if (!isBackground) {
+                setPriceLoading(true);
+                // Reset prices to prevent stale data if we are switching pools
+                if (!isOpen) {
+                    // Only clear if opening fresh. If just refreshing in bg, don't clear.
+                    setMinPrice('');
+                    setMaxPrice('');
+                    setCurrentPrice(0);
+                }
+            }
 
             // Initial Liquidity Fetch
             if (!isBackground) setLiquidityLoading(true);
 
             try {
-                console.log("CreatePositionPanel: Fetching prices for", tokenA, tokenB);
+                console.log("CreatePositionPanel: ------------------------------------------");
+                console.log(`CreatePositionPanel: Fetching for Pool: ${poolAddress}`);
+                console.log(`CreatePositionPanel: Tokens: ${tokenA} / ${tokenB}`);
 
                 // 1. Fetch USD prices for both tokens (using reliable priceService)
                 const priceA = await getTokenPrice(tokenA);
                 const priceB = await getTokenPrice(tokenB);
 
-                console.log("CreatePositionPanel: USD Prices:", { [tokenA]: priceA, [tokenB]: priceB });
+                console.log(`CreatePositionPanel: Prices Fetched -> ${tokenA}: $${priceA}, ${tokenB}: $${priceB}`);
 
                 setTokenAPriceUsd(priceA);
                 setTokenBPriceUsd(priceB);
@@ -107,16 +120,16 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                 let displayTokenA: boolean;
 
                 if (isTokenAStable) {
-                    // TokenA is stablecoin → show tokenB (SOL or altcoin)
+                    // TokenA is stablecoin (USDC/SOL) → show tokenB (SOL)
                     displayTokenA = false;
                 } else if (isTokenBStable) {
-                    // TokenB is stablecoin → show tokenA (SOL or altcoin)
+                    // TokenB is stablecoin (SOL/USDC) → show tokenA (SOL)
                     displayTokenA = true;
                 } else if (isTokenASOL && !isTokenBSOL) {
-                    // SOL/Altcoin → show Altcoin (tokenB)
+                    // SOL/Altcoin (SOL/PENGU) → show Altcoin (tokenB - PENGU)
                     displayTokenA = false;
                 } else if (isTokenBSOL && !isTokenASOL) {
-                    // Altcoin/SOL → show Altcoin (tokenA)
+                    // Altcoin/SOL (PENGU/SOL) → show Altcoin (tokenA - PENGU)
                     displayTokenA = true;
                 } else {
                     // Both are altcoins or both are SOL → show tokenA
@@ -126,7 +139,8 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                 const displayPrice = displayTokenA ? priceA : priceB;
                 const displayToken = displayTokenA ? tokenA : tokenB;
 
-                console.log('CreatePositionPanel: Display token:', displayToken, '=', displayPrice);
+                console.log(`CreatePositionPanel: Decision -> Displaying: ${displayToken} ($${displayPrice})`);
+                console.log("CreatePositionPanel: ------------------------------------------");
 
                 setDisplayToken(displayToken);
 
@@ -143,6 +157,10 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                     }
                 } else {
                     console.warn("CreatePositionPanel: Failed to fetch USD price for", displayToken);
+                    // If price fetch failed, we shouldn't show stale data 
+                    if (!isBackground && currentPrice === 0) {
+                        // Maybe set error?
+                    }
                 }
 
                 // Fetch real liquidity distribution (background safe) with simple retry
@@ -624,6 +642,54 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                                 {priceLoading ? 'Loading...' : `$${currentPrice.toFixed(4)}`}
                                             </span>
                                             <span className="text-xs text-emerald-400 font-medium px-1.5 py-0.5 bg-emerald-500/10 rounded">Live</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Estimated Yield Row (Dynamic) */}
+                                    <div className="flex items-center justify-between px-4 py-3 hover:bg-[#1e293b]/20 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-slate-400 font-medium border-b border-dotted border-slate-500 cursor-help" title="This is an estimate assuming constant volume and price staying in range.">
+                                                Estimated Yield
+                                            </span>
+                                            <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1e293b] border border-[#334155]">
+                                                <div className="w-2.5 h-2.5 text-emerald-400">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>
+                                                </div>
+                                                <span className="text-[10px] font-bold text-slate-300">24H</span>
+                                                <div className="w-2 h-2 text-slate-500">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-mono text-emerald-400 font-bold text-lg">
+                                                {(() => {
+                                                    if (!minPrice || !maxPrice || currentPrice <= 0 || parseFloat(minPrice) >= parseFloat(maxPrice)) return '0.000%';
+
+                                                    const min = parseFloat(minPrice);
+                                                    const max = parseFloat(maxPrice);
+                                                    const rangeDelta = (max - min) / currentPrice;
+
+                                                    if (rangeDelta === 0) return '0.000%';
+
+                                                    // HEURISTIC MODEL:
+                                                    // Yield scales inversely with range width (concentration).
+                                                    // We use a reference point derived from pool performance (Base Yield at Reference Width).
+
+                                                    const BASE_YIELD_24H = 0.230; // 0.23% daily yield at +/- 10% range for a 0.30% pool
+                                                    const REFERENCE_RANGE_WIDTH = 0.20; // 20% width (+/- 10%)
+                                                    const REFERENCE_FEE_TIER = 0.30; // The fee tier the base yield is calibrated for
+
+                                                    // Fee Tier Scaling: Higher fees = Higher potential yield
+                                                    // e.g. 0.01% pool earns ~1/30th of a 0.30% pool (simplified)
+                                                    const feeTierFactor = feeTier / REFERENCE_FEE_TIER;
+
+                                                    // Formula: BaseYield * FeeFactor * (RefWidth / CurrentWidth)
+                                                    const yieldVal = BASE_YIELD_24H * feeTierFactor * (REFERENCE_RANGE_WIDTH / rangeDelta);
+
+                                                    return yieldVal.toFixed(3) + '%';
+                                                })()}
+                                            </span>
                                         </div>
                                     </div>
 

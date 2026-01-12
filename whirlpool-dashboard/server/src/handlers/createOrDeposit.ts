@@ -39,24 +39,33 @@ export interface CreateOrDepositResponse {
  * Returns an unsigned transaction for client-side signing.
  */
 export async function createOrDeposit(request: CreateOrDepositRequest): Promise<CreateOrDepositResponse> {
-    const connection = getConnection();
-    const walletPubkey = new PublicKey(request.wallet);
-    const whirlpoolPubkey = new PublicKey(request.whirlpool);
-
-    // Create context with the actual wallet address for building tx
-    const dummyWallet = new Wallet({
-        publicKey: walletPubkey,
-        secretKey: new Uint8Array(64),
-    } as any);
-
-    const ctx = WhirlpoolContext.from(
-        connection,
-        dummyWallet
-    );
-
-    const client = buildWhirlpoolClient(ctx);
+    console.log("!!! DEBUG: createOrDeposit handler v3 called !!!");
+    console.log("Request:", {
+        wallet: request.wallet,
+        whirlpool: request.whirlpool,
+        amountA: request.amountA,
+        priceLower: request.priceLower,
+        priceUpper: request.priceUpper
+    });
 
     try {
+        const connection = getConnection();
+        const walletPubkey = new PublicKey(request.wallet);
+        const whirlpoolPubkey = new PublicKey(request.whirlpool);
+
+        // Create context with the actual wallet address for building tx
+        const dummyWallet = new Wallet({
+            publicKey: walletPubkey,
+            secretKey: new Uint8Array(64),
+        } as any);
+
+        const ctx = WhirlpoolContext.from(
+            connection,
+            dummyWallet
+        );
+
+        const client = buildWhirlpoolClient(ctx);
+
         // Fetch the whirlpool
         const whirlpool = await client.getPool(whirlpoolPubkey);
         const whirlpoolData = whirlpool.getData();
@@ -68,14 +77,19 @@ export async function createOrDeposit(request: CreateOrDepositRequest): Promise<
             const tokenA = whirlpool.getTokenAInfo();
             const tokenB = whirlpool.getTokenBInfo();
 
-            tickLower = TickUtil.getInitializableTickIndex(
-                PriceMath.priceToTickIndex(new Decimal(request.priceLower), tokenA.decimals, tokenB.decimals),
-                whirlpoolData.tickSpacing
-            );
-            tickUpper = TickUtil.getInitializableTickIndex(
-                PriceMath.priceToTickIndex(new Decimal(request.priceUpper), tokenA.decimals, tokenB.decimals),
-                whirlpoolData.tickSpacing
-            );
+            console.log("DEBUG: Token decimals - A:", tokenA.decimals, "B:", tokenB.decimals);
+            console.log("DEBUG: Tick spacing:", whirlpoolData.tickSpacing);
+            console.log("DEBUG: Price inputs - Lower:", request.priceLower, "Upper:", request.priceUpper);
+
+            const rawTickLower = PriceMath.priceToTickIndex(new Decimal(request.priceLower), tokenA.decimals, tokenB.decimals);
+            const rawTickUpper = PriceMath.priceToTickIndex(new Decimal(request.priceUpper), tokenA.decimals, tokenB.decimals);
+
+            console.log("DEBUG: Raw ticks - Lower:", rawTickLower, "Upper:", rawTickUpper);
+
+            tickLower = TickUtil.getInitializableTickIndex(rawTickLower, whirlpoolData.tickSpacing);
+            tickUpper = TickUtil.getInitializableTickIndex(rawTickUpper, whirlpoolData.tickSpacing);
+
+            console.log("DEBUG: Initializable ticks - Lower:", tickLower, "Upper:", tickUpper);
         } else if (request.tickLower !== undefined && request.tickUpper !== undefined) {
             tickLower = TickUtil.getInitializableTickIndex(
                 request.tickLower,
@@ -87,6 +101,12 @@ export async function createOrDeposit(request: CreateOrDepositRequest): Promise<
             );
         } else {
             throw new Error("Must provide either tick indices or prices");
+        }
+
+        // Validate tick range
+        if (tickLower >= tickUpper) {
+            console.error("DEBUG: Invalid tick range! tickLower >= tickUpper");
+            throw new Error(`Invalid price range: lower tick (${tickLower}) must be less than upper tick (${tickUpper}). Check your min/max price inputs.`);
         }
 
         // Check if position already exists by looking for positions in this range
@@ -121,16 +141,48 @@ export async function createOrDeposit(request: CreateOrDepositRequest): Promise<
 
         // Get quote for liquidity
         const tokenA = whirlpool.getTokenAInfo();
+        const tokenB = whirlpool.getTokenBInfo();
+        const currentTick = whirlpoolData.tickCurrentIndex;
+
+        console.log("DEBUG: Current tick:", currentTick, "Range:", tickLower, "-", tickUpper);
+
+        // Determine which token to use for input based on current price position
+        // - If current tick >= tickUpper: price is ABOVE range, position needs only Token B
+        // - If current tick < tickLower: price is BELOW range, position needs only Token A
+        // - If in range: needs both tokens, use Token A as input and SDK calculates B
+        let inputMint: PublicKey;
+        let inputAmount: Decimal;
+
+        if (currentTick >= tickUpper) {
+            console.log("DEBUG: Current price is ABOVE range - using Token B for input");
+            // Price above range: only Token B (quote token) is needed
+            // We need to calculate the Token B equivalent of amountA
+            const priceB = PriceMath.tickIndexToPrice(currentTick, tokenA.decimals, tokenB.decimals);
+            const amountBEquivalent = new Decimal(request.amountA).mul(priceB);
+            inputMint = tokenB.mint;
+            inputAmount = amountBEquivalent;
+            console.log("DEBUG: Converted", request.amountA, "Token A to", inputAmount.toString(), "Token B");
+        } else if (currentTick < tickLower) {
+            console.log("DEBUG: Current price is BELOW range - using Token A for input");
+            inputMint = tokenA.mint;
+            inputAmount = new Decimal(request.amountA);
+        } else {
+            console.log("DEBUG: Current price is IN range - using Token A for input");
+            inputMint = tokenA.mint;
+            inputAmount = new Decimal(request.amountA);
+        }
 
         const quote = increaseLiquidityQuoteByInputToken(
-            tokenA.mint,
-            new Decimal(request.amountA),
+            inputMint,
+            inputAmount,
             tickLower,
             tickUpper,
             Percentage.fromFraction(10, 1000), // 1% slippage
             whirlpool,
             tokenExtensionCtx
         );
+
+        console.log("DEBUG: Quote liquidity:", quote.liquidityAmount.toString());
 
         let builtTx;
 
@@ -190,6 +242,17 @@ export async function createOrDeposit(request: CreateOrDepositRequest): Promise<
         };
     } catch (error: any) {
         console.error("Error in createOrDeposit:", error);
+
+        // Friendly error for liquidity invariant
+        if (error.message?.includes("liquidity must be greater than zero") ||
+            error.message?.includes("Invariant failed")) {
+            return {
+                success: false,
+                error: "Deposit amount too small for this price range. Please increase amount.",
+                isNewPosition: false
+            };
+        }
+
         return {
             success: false,
             error: error.message || "Unknown error",
