@@ -9,8 +9,8 @@ import {
     ORCA_WHIRLPOOLS_CONFIG,
 } from "@orca-so/whirlpools-sdk";
 import { Percentage } from "@orca-so/common-sdk";
-import Decimal from "decimal.js";
-const DecimalJs = Decimal.default || Decimal;
+import DecimalDefault from "decimal.js";
+const Decimal = (DecimalDefault as any).default || DecimalDefault;
 
 export interface OrcaQuoteResult {
     route: "ORCA";
@@ -133,8 +133,8 @@ export async function getOrcaQuoteWithTx(params: {
     const serialized = Buffer.from(transaction.transaction.serialize()).toString("base64");
 
     // Calculate price impact (rough estimate)
-    const inDecimal = new DecimalJs(amount);
-    const outDecimal = new DecimalJs(quote.estimatedAmountOut.toString());
+    const inDecimal = new Decimal(amount);
+    const outDecimal = new Decimal(quote.estimatedAmountOut.toString());
 
     return {
         route: "ORCA",

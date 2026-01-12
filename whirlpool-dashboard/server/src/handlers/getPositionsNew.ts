@@ -40,12 +40,12 @@ export async function getPositionsNew(walletAddress: string): Promise<PositionIn
         // Collect all unique whirlpool addresses
         const whirlpoolAddresses = new Set<string>();
         for (const pos of positions) {
-            if (pos.isPositionBundle) {
-                for (const p of pos.positions) {
-                    whirlpoolAddresses.add(p.data.whirlpool);
+            if ((pos as any).isPositionBundle) {
+                for (const p of (pos as any).positions) {
+                    whirlpoolAddresses.add((p.data as any).whirlpool);
                 }
             } else {
-                whirlpoolAddresses.add(pos.data.whirlpool);
+                whirlpoolAddresses.add((pos as any).data.whirlpool);
             }
         }
 
@@ -68,10 +68,10 @@ export async function getPositionsNew(walletAddress: string): Promise<PositionIn
         }));
 
         for (const pos of positions) {
-            if (pos.isPositionBundle) {
+            if ((pos as any).isPositionBundle) {
                 // Handle bundled positions
-                for (const p of pos.positions) {
-                    const poolData = poolMap.get(p.data.whirlpool);
+                for (const p of (pos as any).positions) {
+                    const poolData = poolMap.get((p.data as any).whirlpool);
                     let poolPair = "Unknown/Unknown";
                     let tokenA = "Unknown";
                     let tokenB = "Unknown";
@@ -88,10 +88,10 @@ export async function getPositionsNew(walletAddress: string): Promise<PositionIn
 
                     result.push({
                         positionMint: p.address,
-                        whirlpoolAddress: p.data.whirlpool,
-                        tickLowerIndex: p.data.tickLowerIndex,
-                        tickUpperIndex: p.data.tickUpperIndex,
-                        liquidity: p.data.liquidity.toString(),
+                        whirlpoolAddress: (p.data as any).whirlpool,
+                        tickLowerIndex: (p.data as any).tickLowerIndex,
+                        tickUpperIndex: (p.data as any).tickUpperIndex,
+                        liquidity: (p.data as any).liquidity.toString(),
                         isBundle: true,
                         poolPair,
                         tokenA,
@@ -100,7 +100,7 @@ export async function getPositionsNew(walletAddress: string): Promise<PositionIn
                 }
             } else {
                 // Handle standard position
-                const poolData = poolMap.get(pos.data.whirlpool);
+                const poolData = poolMap.get((pos as any).data.whirlpool);
                 let poolPair = "Unknown/Unknown";
                 let tokenA = "Unknown";
                 let tokenB = "Unknown";
@@ -116,11 +116,11 @@ export async function getPositionsNew(walletAddress: string): Promise<PositionIn
                 }
 
                 result.push({
-                    positionMint: pos.address,
-                    whirlpoolAddress: pos.data.whirlpool,
-                    tickLowerIndex: pos.data.tickLowerIndex,
-                    tickUpperIndex: pos.data.tickUpperIndex,
-                    liquidity: pos.data.liquidity.toString(),
+                    positionMint: (pos as any).address,
+                    whirlpoolAddress: (pos as any).data.whirlpool,
+                    tickLowerIndex: (pos as any).data.tickLowerIndex,
+                    tickUpperIndex: (pos as any).data.tickUpperIndex,
+                    liquidity: (pos as any).data.liquidity.toString(),
                     isBundle: false,
                     poolPair,
                     tokenA,
