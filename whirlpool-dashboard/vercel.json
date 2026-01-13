@@ -1,9 +1,8 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "buildCommand": "cd whirlpool-dashboard && npm install && npm run build",
-    "outputDirectory": "whirlpool-dashboard/dist",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
     "installCommand": "npm install",
-    "framework": null,
+    "framework": "vite",
     "rewrites": [
         {
             "source": "/(.*)",
