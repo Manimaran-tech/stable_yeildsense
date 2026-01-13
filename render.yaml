@@ -43,7 +43,6 @@ services:
   - type: web
     name: yieldsense-frontend
     runtime: static
-    plan: free
     branch: main
     rootDir: whirlpool-dashboard
     buildCommand: npm install && npm run build
