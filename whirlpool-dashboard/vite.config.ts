@@ -1,48 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react(),
+    nodePolyfills({
+      include: ['buffer', 'process', 'util', 'stream', 'events'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
   ],
   server: {
     port: 3005,
     open: true,
-  },
-  build: {
-    target: 'esnext',
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-        },
-      },
-    },
-  },
-  resolve: {
-    alias: {
-      buffer: 'buffer',
-      process: 'process/browser',
-      stream: 'stream-browserify',
-      util: 'util',
-    },
-  },
-  define: {
-    'process.env': {},
-    global: 'globalThis',
-    'Buffer': ['buffer', 'Buffer'],
-  },
-  optimizeDeps: {
-    include: ['buffer', 'process'],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis',
-      },
-    },
-  },
+  }
 })
