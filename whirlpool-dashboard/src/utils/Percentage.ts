@@ -1,19 +1,19 @@
-import { BN } from "@coral-xyz/anchor";
-
+// Simple Percentage class for frontend use (no external dependencies)
 export class Percentage {
-    numerator: BN;
-    denominator: BN;
+    numerator: bigint;
+    denominator: bigint;
 
-    constructor(n: BN, d: BN) {
-        this.numerator = n;
-        this.denominator = d;
+    constructor(n: bigint | number, d: bigint | number) {
+        this.numerator = BigInt(n);
+        this.denominator = BigInt(d);
     }
 
-    static fromFraction(numerator: number | BN, denominator: number | BN): Percentage {
-        return new Percentage(new BN(numerator), new BN(denominator));
+    static fromFraction(numerator: number | bigint, denominator: number | bigint): Percentage {
+        return new Percentage(BigInt(numerator), BigInt(denominator));
     }
 
     toString(): string {
         return `${this.numerator.toString()}/${this.denominator.toString()}`;
     }
 }
+

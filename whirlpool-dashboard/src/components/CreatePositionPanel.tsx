@@ -455,7 +455,7 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
 
             const response = await api.createOrDeposit({
                 wallet: publicKey.toString(),
-                whirlpool: poolAddress,
+                whirlpool: poolAddress || '',
                 priceLower: submissionLower,
                 priceUpper: submissionUpper,
                 amountA: amountA
@@ -824,7 +824,7 @@ export const CreatePositionPanel: FC<CreatePositionPanelProps> = ({
                                 <div id="dev-info-block" className="hidden mt-2 p-3 bg-black/40 border border-purple-500/20 rounded-lg text-xs font-mono space-y-1">
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Pool Address:</span>
-                                        <span className="text-purple-300 truncate max-w-[120px]" title={poolAddress}>{poolAddress.substring(0, 8)}...</span>
+                                        <span className="text-purple-300 truncate max-w-[120px]" title={poolAddress || ''}>{(poolAddress || '').substring(0, 8)}...</span>
                                     </div>
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Current Tick:</span>
