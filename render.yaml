@@ -21,21 +21,6 @@ services:
         sync: false  # Set manually in Render dashboard (secret)
     healthCheckPath: /health
 
-  # Python ML API
-  - type: web
-    name: yieldsense-ml-api
-    runtime: python
-    region: oregon
-    plan: free
-    branch: main
-    rootDir: whirlpool-dashboard/ml-api
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: PORT
-        value: 8000
-    healthCheckPath: /health
-
   # Trading API (Jupiter Swap)
   - type: web
     name: yieldsense-trading-api
@@ -54,3 +39,21 @@ services:
       - key: RPC_URL
         sync: false
 
+  # Frontend (Static Site)  
+  - type: web
+    name: yieldsense-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: whirlpool-dashboard
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
