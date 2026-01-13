@@ -13,6 +13,10 @@ export default defineConfig({
         global: true,
         process: true,
       },
+      overrides: {
+        fs: 'memfs',
+      },
+      protocolImports: true,
     }),
   ],
   server: {
@@ -21,6 +25,9 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -29,8 +36,15 @@ export default defineConfig({
       },
     },
   },
+  resolve: {
+    alias: {
+      process: 'process/browser',
+      buffer: 'buffer',
+    },
+  },
   define: {
     'process.env': {},
     global: 'globalThis',
   },
 })
+
