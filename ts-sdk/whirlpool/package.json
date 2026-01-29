@@ -39,10 +39,10 @@
     "@solana/sysvars": "^5.3.0"
   },
   "peerDependencies": {
-    "@solana/kit": "^5.3.0"
+    "@solana/kit": "^5.5.1"
   },
   "devDependencies": {
-    "@solana/kit": "^5.3.0",
+    "@solana/kit": "^5.5.1",
     "litesvm": "^0.4.0",
     "tsup": "^8.4.0",
     "typescript": "^5.9.3",
