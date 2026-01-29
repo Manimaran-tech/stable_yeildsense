@@ -28,7 +28,7 @@
     "tsup": "^8.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16",
-    "wasm-pack": "^0.0.0"
+    "wasm-pack": "^0.14.0"
   },
   "repository": {
     "type": "git",
