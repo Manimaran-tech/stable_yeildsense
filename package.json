@@ -33,6 +33,6 @@
     "whirlpool-dashboard"
   ],
   "dependencies": {
-    "react-is": "^19.2.3"
+    "react-is": "^19.2.4"
   }
 }
