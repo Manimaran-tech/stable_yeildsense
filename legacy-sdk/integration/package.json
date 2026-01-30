@@ -1,0 +1,12 @@
+{
+  "name": "@orca-so/whirlpools-sdk-integration",
+  "version": "0.2.0",
+  "devDependencies": {
+    "@orca-so/common-sdk": "*",
+    "@orca-so/whirlpools-sdk": "*"
+  },
+  "scripts": {
+    "build": "anchor build",
+    "test": "yarn workspace @orca-so/whirlpools-sdk test"
+  }
+}

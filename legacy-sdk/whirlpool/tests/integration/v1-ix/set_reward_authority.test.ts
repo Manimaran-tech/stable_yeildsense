@@ -1,0 +1,133 @@
+import * as anchor from "@coral-xyz/anchor";
+import { TransactionBuilder } from "@orca-so/common-sdk";
+import * as assert from "assert";
+import type { WhirlpoolData, WhirlpoolContext } from "../../../src";
+import { PoolUtil, toTx, WhirlpoolIx } from "../../../src";
+import { TickSpacing } from "../../utils";
+import { initializeLiteSVMEnvironment } from "../../utils/litesvm";
+import { initTestPool } from "../../utils/init-utils";
+
+describe("set_reward_authority", () => {
+  let provider: anchor.AnchorProvider;
+  let ctx: WhirlpoolContext;
+  let fetcher: WhirlpoolContext["fetcher"];
+
+  beforeAll(async () => {
+    const env = await initializeLiteSVMEnvironment();
+    provider = env.provider;
+    ctx = env.ctx;
+    fetcher = env.fetcher;
+  });
+
+  it("successfully set_reward_authority", async () => {
+    const { configKeypairs, poolInitInfo } = await initTestPool(
+      ctx,
+      TickSpacing.Standard,
+    );
+
+    const newKeypair = anchor.web3.Keypair.generate();
+    const txBuilder = new TransactionBuilder(
+      provider.connection,
+      provider.wallet,
+      ctx.txBuilderOpts,
+    );
+    txBuilder.addInstruction(
+      WhirlpoolIx.setRewardAuthorityIx(ctx.program, {
+        whirlpool: poolInitInfo.whirlpoolPda.publicKey,
+        rewardAuthority:
+          configKeypairs.rewardEmissionsSuperAuthorityKeypair.publicKey,
+        newRewardAuthority: newKeypair.publicKey,
+        rewardIndex: 0,
+      }),
+    );
+    await txBuilder
+      .addSigner(configKeypairs.rewardEmissionsSuperAuthorityKeypair)
+      .buildAndExecute({
+        maxSupportedTransactionVersion: undefined,
+      });
+
+    const pool = (await fetcher.getPool(
+      poolInitInfo.whirlpoolPda.publicKey,
+    )) as WhirlpoolData;
+    assert.ok(PoolUtil.getRewardAuthority(pool).equals(newKeypair.publicKey));
+  });
+
+  it("fails when provided reward_authority does not match whirlpool reward authority", async () => {
+    const { poolInitInfo } = await initTestPool(ctx, TickSpacing.Standard);
+
+    const fakeAuthority = anchor.web3.Keypair.generate();
+    const newAuthority = anchor.web3.Keypair.generate();
+    await assert.rejects(
+      toTx(
+        ctx,
+        WhirlpoolIx.setRewardAuthorityIx(ctx.program, {
+          whirlpool: poolInitInfo.whirlpoolPda.publicKey,
+          rewardAuthority: fakeAuthority.publicKey,
+          newRewardAuthority: newAuthority.publicKey,
+          rewardIndex: 0,
+        }),
+      )
+        .addSigner(fakeAuthority)
+        .buildAndExecute(),
+      /0x7dc/, // An address constraint was violated
+    );
+  });
+
+  it("fails on invalid reward index", async () => {
+    const { configKeypairs, poolInitInfo } = await initTestPool(
+      ctx,
+      TickSpacing.Standard,
+    );
+
+    // -1 is out of range
+    const newAuthority = anchor.web3.Keypair.generate();
+    assert.throws(() => {
+      toTx(
+        ctx,
+        WhirlpoolIx.setRewardAuthorityIx(ctx.program, {
+          whirlpool: poolInitInfo.whirlpoolPda.publicKey,
+          rewardAuthority:
+            configKeypairs.rewardEmissionsSuperAuthorityKeypair.publicKey,
+          newRewardAuthority: newAuthority.publicKey,
+          rewardIndex: -1,
+        }),
+      ).buildAndExecute();
+    }, /out of range/);
+
+    // rewardIndex should be ignored
+    await toTx(
+      ctx,
+      WhirlpoolIx.setRewardAuthorityIx(ctx.program, {
+        whirlpool: poolInitInfo.whirlpoolPda.publicKey,
+        rewardAuthority:
+          configKeypairs.rewardEmissionsSuperAuthorityKeypair.publicKey,
+        newRewardAuthority: newAuthority.publicKey,
+        rewardIndex: 255,
+      }),
+    )
+      .addSigner(configKeypairs.rewardEmissionsSuperAuthorityKeypair)
+      .buildAndExecute();
+  });
+
+  it("fails when reward_authority is not a signer", async () => {
+    const { configKeypairs, poolInitInfo } = await initTestPool(
+      ctx,
+      TickSpacing.Standard,
+    );
+
+    const newAuthority = anchor.web3.Keypair.generate();
+    await assert.rejects(
+      toTx(
+        ctx,
+        WhirlpoolIx.setRewardAuthorityIx(ctx.program, {
+          whirlpool: poolInitInfo.whirlpoolPda.publicKey,
+          rewardAuthority:
+            configKeypairs.rewardEmissionsSuperAuthorityKeypair.publicKey,
+          newRewardAuthority: newAuthority.publicKey,
+          rewardIndex: 0,
+        }),
+      ).buildAndExecute(),
+      /.*signature verification fail.*/i,
+    );
+  });
+});

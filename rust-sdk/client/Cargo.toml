@@ -1,0 +1,40 @@
+[package]
+name = "orca_whirlpools_client"
+version = "7.0.0"
+description = "Rust client to interact with Orca's on-chain Whirlpool program."
+include = ["src/*"]
+documentation = "https://dev.orca.so/"
+homepage = "https://orca.so"
+repository = "https://github.com/orca-so/whirlpools"
+license-file = "../../LICENSE"
+keywords = ["solana", "crypto", "defi", "dex", "amm"]
+authors = ["team@orca.so"]
+edition = "2021"
+
+[features]
+default = ["core-types"]
+anchor = ["dep:anchor-lang"]
+anchor-idl-build = ["dep:anchor-lang", "anchor-lang/idl-build"]
+core-types = ["dep:orca_whirlpools_core"]
+serde = ["dep:serde", "dep:serde_with", "dep:serde-big-array"]
+fetch = ["dep:solana-client", "dep:solana-account-decoder"]
+
+[dependencies]
+anchor-lang = { version = ">=0.31", optional = true }
+borsh = { version = "^1.0" }
+num-derive = { version = "^0.4" }
+num-traits = { version = "^0.2" }
+orca_whirlpools_core = { path = "../core", optional = true }
+serde = { version = "^1.0", features = ["derive"], optional = true }
+serde_with = { version = "^3.10", optional = true }
+serde-big-array = { version = "^0.5", optional = true }
+solana-pubkey = { version = "^3", features=["borsh"] }
+solana-instruction = { version = "^3" }
+solana-account = { version = "^3" }
+solana-account-info = { version = "^3" }
+solana-program-error = { version = "^3" }
+solana-cpi = { version = "^3" }
+solana-program = { version = "^3" }
+solana-client = { version = "^3", optional = true }
+solana-account-decoder = { version = "^3", optional = true }
+thiserror = { version = "^2.0" }

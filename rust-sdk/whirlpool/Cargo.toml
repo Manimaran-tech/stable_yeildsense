@@ -1,0 +1,60 @@
+[package]
+name = "orca_whirlpools"
+version = "6.0.0"
+description = "Orca's high-level rust sdk to interact with Orca's on-chain Whirlpool program."
+include = ["src/*"]
+documentation = "https://dev.orca.so/"
+homepage = "https://orca.so"
+repository = "https://github.com/orca-so/whirlpools"
+license-file = "../../LICENSE"
+keywords = ["solana", "crypto", "defi", "dex", "amm"]
+authors = ["team@orca.so"]
+edition = "2021"
+
+[features]
+default = []
+
+[dependencies]
+solana-client = { version = "^3" }
+solana-rent = { version = "^3" }
+solana-sysvar-id = { version = "^3" }
+solana-account-decoder = { version = "^3" }
+solana-program-pack = { version = "^3" }
+solana-pubkey = { version = "^3" }
+solana-instruction = { version = "^3" }
+solana-program-error = { version = "^3" }
+solana-keypair = { version = "^3" }
+solana-account = { version = "^3" }
+solana-signature = { version = "^3" }
+solana-sha256-hasher = { version = "^3" }
+solana-epoch-info = { version = "^3" }
+solana-message = { version = "^3" }
+solana-transaction = { version = "^3" }
+solana-commitment-config = { version = "^3" }
+spl-memo-interface = "^2"
+spl-token-interface = "^2"
+spl-token-2022-interface = "^2"
+spl-associated-token-account-interface = "^2"
+solana-system-interface = "^2"
+orca_whirlpools_core = { path = "../core", features = ["floats"] }
+orca_whirlpools_client = { path = "../client", features = ["fetch"] }
+bincode = { version = "^1.3" }
+serde = { version = "^1.0" }
+serde_json = { version = "^1.0" }
+bs58 = { version = "^0.5.1", default-features = false }
+
+[dev-dependencies]
+serial_test = { version = "^3.1" }
+litesvm = { version = "^0.8" }
+litesvm-token = "0.8.1"
+solana-version = { version = "^3" }
+solana-clock = { version = "^3" }
+solana-sysvar = { version = "^3" }
+agave-feature-set = { version = "^3.0" }
+async-trait = { version = "^0.1" }
+base64 = { version = "^0.20" }
+toml = { version = "^0.7" }
+tokio = { version = "^1.0", features = ["sync"] }
+spl-pod = { version = "^0.5" }
+lazy_static = { version = "^1.4" }
+rstest = "0.18.2"

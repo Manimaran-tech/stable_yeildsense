@@ -1,0 +1,62 @@
+{
+  "name": "@orca-so/whirlpools-client",
+  "version": "6.0.0",
+  "description": "Typescript client to interact with Orca's on-chain Whirlpool program.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "../../LICENSE"
+  ],
+  "scripts": {
+    "build": "node ./codama.js && tsup src/index.ts --format cjs,esm --dts --sourcemap",
+    "generate": "node ./codama.js",
+    "test": "vitest run tests",
+    "deploy": "../../scripts/deploy-npm",
+    "clean": "rimraf dist src/generated"
+  },
+  "peerDependencies": {
+    "@solana/kit": "^5.5.1"
+  },
+  "devDependencies": {
+    "@codama/nodes-from-anchor": "^1.2.9",
+    "@codama/renderers-js": "^1.4.2",
+    "@orca-so/whirlpools-program": "*",
+    "@solana/kit": "^5.5.1",
+    "codama": "^1.3.7",
+    "tsup": "^8.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orca-so/whirlpools.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": [
+    "solana",
+    "crypto",
+    "defi",
+    "dex",
+    "amm"
+  ],
+  "author": "team@orca.so",
+  "bugs": {
+    "url": "https://github.com/orca-so/whirlpools/issues"
+  },
+  "homepage": "https://orca.so"
+}
