@@ -30,15 +30,15 @@
   },
   "dependencies": {
     "@solana-program/address-lookup-table": "^0.10.0",
-    "@solana-program/compute-budget": "^0.11.0",
+    "@solana-program/compute-budget": "^0.12.0",
     "@solana-program/system": "^0.10.0"
   },
   "peerDependencies": {
-    "@solana/kit": "^5.3.0",
+    "@solana/kit": "^5.5.1",
     "@solana/rpc": "^5.0.0"
   },
   "devDependencies": {
-    "@solana/kit": "^5.3.0",
+    "@solana/kit": "^5.5.1",
     "tsup": "^8.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
