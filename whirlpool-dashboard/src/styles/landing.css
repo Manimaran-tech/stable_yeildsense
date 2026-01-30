@@ -1,0 +1,510 @@
+/* Landing Page Styles - Matching Dashboard Theme */
+
+/* Landing Container */
+.landing-container {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #050816 0%, #02030a 100%);
+    position: relative;
+    overflow-x: hidden;
+    cursor: default;
+}
+
+/* Blockchain Background Grid */
+.blockchain-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Grid Pattern */
+.blockchain-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 60px 60px;
+    background-image:
+        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    animation: gridPulse 4s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Transaction Lines Container */
+.transaction-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* Individual Transaction Line */
+.tx-line {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(139, 92, 246, 0.6) 20%,
+            rgba(6, 182, 212, 0.8) 50%,
+            rgba(139, 92, 246, 0.6) 80%,
+            transparent 100%);
+    border-radius: 2px;
+    filter: blur(0.5px);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+
+/* Horizontal Lines - Left to Right */
+.tx-line.horizontal {
+    width: 200px;
+    animation: txMoveHorizontal 8s linear infinite;
+}
+
+.tx-line.horizontal-reverse {
+    width: 150px;
+    animation: txMoveHorizontalReverse 10s linear infinite;
+}
+
+/* Vertical Lines - Top to Bottom */
+.tx-line.vertical {
+    width: 2px;
+    height: 150px;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(6, 182, 212, 0.6) 20%,
+            rgba(139, 92, 246, 0.8) 50%,
+            rgba(6, 182, 212, 0.6) 80%,
+            transparent 100%);
+    animation: txMoveVertical 7s linear infinite;
+}
+
+.tx-line.vertical-reverse {
+    width: 2px;
+    height: 120px;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(236, 72, 153, 0.5) 20%,
+            rgba(139, 92, 246, 0.7) 50%,
+            rgba(236, 72, 153, 0.5) 80%,
+            transparent 100%);
+    animation: txMoveVerticalReverse 9s linear infinite;
+}
+
+/* Diagonal Lines */
+.tx-line.diagonal {
+    width: 180px;
+    transform: rotate(45deg);
+    animation: txMoveDiagonal 12s linear infinite;
+}
+
+/* Node Points */
+.tx-node {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 1), rgba(139, 92, 246, 0.8));
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.6), 0 0 24px rgba(139, 92, 246, 0.3);
+    animation: nodePulse 2s ease-in-out infinite;
+}
+
+@keyframes txMoveHorizontal {
+    0% {
+        left: -200px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes txMoveHorizontalReverse {
+    0% {
+        right: -150px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        right: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes txMoveVertical {
+    0% {
+        top: -150px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes txMoveVerticalReverse {
+    0% {
+        bottom: -120px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        bottom: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes txMoveDiagonal {
+    0% {
+        left: -200px;
+        top: 100%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    90% {
+        opacity: 0.8;
+    }
+
+    100% {
+        left: 100%;
+        top: -200px;
+        opacity: 0;
+    }
+}
+
+@keyframes nodePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 1;
+    }
+}
+
+/* Cursor Glow Effect - Following Mouse */
+.cursor-glow {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle,
+            rgba(139, 92, 246, 0.15) 0%,
+            rgba(6, 182, 212, 0.08) 30%,
+            transparent 70%);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
+    mix-blend-mode: screen;
+}
+
+/* Cursor Inner Glow Ring */
+.cursor-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle,
+            rgba(139, 92, 246, 0.3) 0%,
+            transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: cursorGlowPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes cursorGlowPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Visit Button */
+.btn-visit {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-visit:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(6, 182, 212, 0.3));
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Hero Section */
+.hero-3d {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+}
+
+/* Floating Card */
+.floating-card {
+    background: rgba(10, 14, 26, 0.8);
+    border: 1px solid rgba(30, 41, 59, 0.5);
+    border-radius: 24px;
+    padding: 3rem;
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 10;
+    max-width: 700px;
+    box-shadow:
+        0 0 60px rgba(139, 92, 246, 0.1),
+        0 0 120px rgba(6, 182, 212, 0.05);
+}
+
+/* Gradient Text */
+.yield-sense-gradient-text {
+    background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: gradientFlow 3s ease infinite;
+}
+
+@keyframes gradientFlow {
+
+    0%,
+    100% {
+        background-position: 0% center;
+    }
+
+    50% {
+        background-position: 100% center;
+    }
+}
+
+/* Section Immersive */
+.section-immersive {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+}
+
+/* Feature Grid */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 2rem;
+}
+
+@media (max-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Feature Card */
+.feature-card {
+    background: rgba(10, 14, 26, 0.9);
+    border: 1px solid rgba(30, 41, 59, 0.5);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(6, 182, 212, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+    transform: translateY(-4px);
+}
+
+/* Step Number */
+.step-number {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+/* Reveal Animation */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Wallet Button Override for Landing */
+.landing-container .wallet-adapter-button {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4) !important;
+    border-radius: 12px !important;
+    padding: 0.875rem 2rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.landing-container .wallet-adapter-button:hover {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.4) !important;
+    transform: scale(1.05) !important;
+}
+
+/* Holographic Effects */
+.holographic-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 1000px;
+}
+
+.holographic-board {
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    animation: floatHolographic 6s ease-in-out infinite;
+}
+
+.holographic-board::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(139, 92, 246, 0.2) 50%,
+            transparent 70%);
+    animation: holographicShine 3s linear infinite;
+}
+
+@keyframes floatHolographic {
+
+    0%,
+    100% {
+        transform: translateY(0) rotateY(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotateY(10deg);
+    }
+}
+
+@keyframes holographicShine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}

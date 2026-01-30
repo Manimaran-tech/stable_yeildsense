@@ -7,7 +7,7 @@ export const Navbar = () => {
     const location = useLocation();
 
     const navLinks = [
-        { path: '/', label: 'Liquidity Pool', icon: Wallet },
+        { path: '/dashboard', label: 'Liquidity Pool', icon: Wallet },
         { path: '/trade', label: 'Trade', icon: ArrowLeftRight },
     ];
 

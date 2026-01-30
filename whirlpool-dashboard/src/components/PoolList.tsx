@@ -1,4 +1,5 @@
 import { usePools } from '../hooks/usePools';
+import { usePositions } from '../hooks/usePositions';
 import { Loader2, ArrowRightLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { CreatePositionPanel } from './CreatePositionPanel';
@@ -37,12 +38,19 @@ const getTokenIcon = (symbol: string) => {
 
 export const PoolList = () => {
     const { pools, loading } = usePools();
+    const { refresh: refreshPositions } = usePositions();
     const [selectedPoolAddress, setSelectedPoolAddress] = useState<string | null>(null);
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
     const handleDepositClick = (address: string) => {
         setSelectedPoolAddress(address);
         setIsDepositModalOpen(true);
+    };
+
+    const handlePositionCreated = () => {
+        // Refresh the positions list when a new position is created
+        refreshPositions();
+        setIsDepositModalOpen(false);
     };
 
     if (loading) {
@@ -216,6 +224,7 @@ export const PoolList = () => {
                         key={selectedPoolAddress}
                         isOpen={isDepositModalOpen}
                         onClose={() => setIsDepositModalOpen(false)}
+                        onSuccess={handlePositionCreated}
                         poolAddress={selectedPoolAddress}
                         tokenA={selectedPool?.tokenA || 'SOL'}
                         tokenB={selectedPool?.tokenB || 'USDC'}
