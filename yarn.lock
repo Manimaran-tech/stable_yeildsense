@@ -13625,50 +13625,50 @@ lit@3.1.0:
     lit-element "^4.0.0"
     lit-html "^3.1.0"
 
-litesvm-darwin-arm64@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-darwin-arm64/-/litesvm-darwin-arm64-0.4.0.tgz#cc4987aceb02d56543d69a8920f953a5f441fa46"
-  integrity sha512-LN6iZcUQ6Xi5KO/7yJBYSALjjDCI/s/s2PgV3BqM4dpeBaLz+fXX/+qgMcBgpEVgEdEmhelux+WtAMkbEzJfrA==
+litesvm-darwin-arm64@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-darwin-arm64/-/litesvm-darwin-arm64-0.5.0.tgz#c90e67810fa561b8bdccba78726c03254710cadc"
+  integrity sha512-XaY+97QvKofOqs9n4vlEtqFEsDDYjzOiAAtYjhtO0iwhleaNE/dMiFMWneeiZ66iL9jhkSpJtF1rv9IIOoXdyA==
 
-litesvm-darwin-x64@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-darwin-x64/-/litesvm-darwin-x64-0.4.0.tgz#1706e6f564d2fbf9b57e556382edfd933c53049f"
-  integrity sha512-3ltogKQdle8LbakVqoB6plxaNwp6Vb3tnkqa3G5mAvvZNorB2iumThDaTZ381Knl69t566LZm+g/VDZwYfsfhA==
+litesvm-darwin-x64@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-darwin-x64/-/litesvm-darwin-x64-0.5.0.tgz#589b3e1efd790583193365b0ced2f4f1d1b57c08"
+  integrity sha512-W3igCDMOJjG4cApeWM7mNlxuV1uXzhQG/+aq2seCtcEqsoSw32aQ+5I9uXxEpRAJzAiCkqxt+CPwauINGOs9qw==
 
-litesvm-linux-arm64-gnu@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-gnu/-/litesvm-linux-arm64-gnu-0.4.0.tgz#db70232b9d55986169a0c428eaf33e9e91051c27"
-  integrity sha512-SWlcRUqkXCMgLoDX/Wqr/S1lff+ggVI9f0YrRJMraxtEyApxutAoW2AWw4tvo6DsEgNwjxgsZOAwnE6bQBv8CA==
+litesvm-linux-arm64-gnu@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-gnu/-/litesvm-linux-arm64-gnu-0.5.0.tgz#64a2fcdef065cc7062300a8f27e64dbb44991676"
+  integrity sha512-nBvr6fdwi6vb6lJDVqnQGA76D6wMOXXVsLUw8jK+WMeQRM2dP4tV2iZ+XwU7EhXm1TGbrnraAgG4C6xcAUKnEQ==
 
-litesvm-linux-arm64-musl@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-musl/-/litesvm-linux-arm64-musl-0.4.0.tgz#c55fb96851f70a4014fdf352317129cd991645ca"
-  integrity sha512-YMMqwEWJUSWwL0Rwp8dFwl3jvgNU21eI7Qc+BpH9u2yeIRYQTn3rNGDnsK8v3QIZPHQdMo7NrPhzk4XoB1aKPg==
+litesvm-linux-arm64-musl@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-arm64-musl/-/litesvm-linux-arm64-musl-0.5.0.tgz#77c0e9dd959c6756318eb397cb1c047f66a322e9"
+  integrity sha512-VmFDAa1SlkjOTQOrXFlVDdCAPD8OBOWbBOy8LMGri0lhm/UrGvO14Qa2bSc0PtRrFEih6QyIZVjLTcmZnvVvPA==
 
-litesvm-linux-x64-gnu@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-gnu/-/litesvm-linux-x64-gnu-0.4.0.tgz#f77ffd2f1edabf47c4e10ee6d75caa2cf0d961b6"
-  integrity sha512-brZ3tFABDVQEYCgci7AO8iVYLw10UXVo97/lpTy75bTzNoqkggg8wFQOrbgCdb9NRwt06Y4Zf8cpIZAoDQq2mw==
+litesvm-linux-x64-gnu@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-gnu/-/litesvm-linux-x64-gnu-0.5.0.tgz#96cb9c4783e5b09eaf0eb2c2544eb8dada5d3210"
+  integrity sha512-W8IIBVlLSBN5RkM88292TImBmYmDMgiYGecin6Qan+dRsBxUffFjRSFHgZRzJQ6X7pfhjlXI6kzuqwsZYchUHA==
 
-litesvm-linux-x64-musl@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-musl/-/litesvm-linux-x64-musl-0.4.0.tgz#8e1662f5807797633f266e8426f954048063210f"
-  integrity sha512-D98qdIOuWg4fOewIIiH1D23AtM4I7/3vLKXIL8uQz06D5ev5fsBzNp2gM7libAywTkCYy/u666xgD6PsWhrTaw==
+litesvm-linux-x64-musl@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm-linux-x64-musl/-/litesvm-linux-x64-musl-0.5.0.tgz#cb8fcf73c14cc4de1ee6acecf49e5b576378fd18"
+  integrity sha512-MECozYJjeEiuAEv04FucrFCA0ivdIxisuiK7Fxzx5uSda0W6AieuDx6rnkMXXTgEsR3PKQUA18KmHR93CN1cdw==
 
-litesvm@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/litesvm/-/litesvm-0.4.0.tgz#87d94e5db7e43ab7531a7140b717e43ab3f47de7"
-  integrity sha512-ySr5mB2ap4SzJpmVR2I5+gjzTH8NJbkg7DYPormzA2U9F4LhfvTTrD17X/k5N3Bn4b5Db6/CwSyX2qc0HrJtNA==
+litesvm@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/litesvm/-/litesvm-0.5.0.tgz#f5e7ceeb082fa6f9aa84e375f2b48be24bf322a5"
+  integrity sha512-lo/W4FcTdUGksuStmdGvRpB6lLRKB5qlvJdMwkGBnOzpIcApHxrvNosHmde4tk9lpWn4ICqW55OYDrSs258bXA==
   dependencies:
     "@solana/web3.js" "^1.98.4"
     fastestsmallesttextencoderdecoder "^1.0.22"
   optionalDependencies:
-    litesvm-darwin-arm64 "0.4.0"
-    litesvm-darwin-x64 "0.4.0"
-    litesvm-linux-arm64-gnu "0.4.0"
-    litesvm-linux-arm64-musl "0.4.0"
-    litesvm-linux-x64-gnu "0.4.0"
-    litesvm-linux-x64-musl "0.4.0"
+    litesvm-darwin-arm64 "0.5.0"
+    litesvm-darwin-x64 "0.5.0"
+    litesvm-linux-arm64-gnu "0.5.0"
+    litesvm-linux-arm64-musl "0.5.0"
+    litesvm-linux-x64-gnu "0.5.0"
+    litesvm-linux-x64-musl "0.5.0"
 
 load-tsconfig@^0.2.3:
   version "0.2.5"
