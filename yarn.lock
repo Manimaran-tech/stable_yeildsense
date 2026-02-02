@@ -1454,17 +1454,17 @@
     "@codama/nodes" "1.5.0"
     "@codama/visitors-core" "1.5.0"
 
-"@codama/renderers-js@^1.4.2":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@codama/renderers-js/-/renderers-js-1.6.0.tgz#7374506c4ad0d4e0ec8ca7c90cdad7b0eff94bca"
-  integrity sha512-eNR8LAykrs5No7Y2EBZevgz+DJMNWB09BL/CwvaWkElGAbEbefsuUl2EllNr6sT/abzMV1JOVddgF3l7EDr6Tw==
+"@codama/renderers-js@^1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@codama/renderers-js/-/renderers-js-1.6.2.tgz#6f24e6fa02416a7cc01f0e598159800945ed28a0"
+  integrity sha512-bfK4vW4KTDgjsEIKRQcUR5GR01bzgjATvEFpdeMhwUZl0737EHHo+j55khew+ubWVJm0VQv51WcSlgSTH0Yo+A==
   dependencies:
     "@codama/errors" "^1.4.4"
     "@codama/nodes" "^1.4.4"
     "@codama/renderers-core" "^1.3.4"
     "@codama/visitors-core" "^1.4.4"
     "@solana/codecs-strings" "^5.0.0"
-    prettier "^3.6.2"
+    prettier "^3.8.1"
     semver "^7.7.3"
 
 "@codama/renderers-rust@^1.2.6":
@@ -16309,7 +16309,7 @@ prettier@^2.7.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
   integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
 
-prettier@^3.5.3, prettier@^3.6.2:
+prettier@^3.5.3, prettier@^3.8.1:
   version "3.8.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.8.1.tgz#edf48977cf991558f4fcbd8a3ba6015ba2a3a173"
   integrity sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==
