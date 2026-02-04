@@ -2269,7 +2269,7 @@ dependencies = [
  "solana-instruction 3.1.0",
  "solana-program",
  "solana-program-error 3.0.0",
- "solana-pubkey 4.0.0",
+ "solana-pubkey 3.0.0",
  "thiserror 2.0.17",
 ]
 
@@ -3345,7 +3345,6 @@ version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e37320fd2945c5d654b2c6210624a52d66c3f1f73b653ed211ab91a703b35bdd"
 dependencies = [
- "borsh 1.6.0",
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek",
@@ -3353,7 +3352,6 @@ dependencies = [
  "five8_const 1.0.0",
  "serde",
  "serde_derive",
- "solana-atomic-u64 3.0.0",
  "solana-define-syscall 4.0.1",
  "solana-program-error 3.0.0",
  "solana-sanitize 3.0.1",
@@ -4742,16 +4740,17 @@ dependencies = [
 
 [[package]]
 name = "solana-signature"
-version = "3.1.0"
+version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bb8057cc0e9f7b5e89883d49de6f407df655bb6f3a71d0b7baf9986a2218fd9"
+checksum = "f4028aeedd443d80f1dccbf64872593a80e6a9676ee9007f6eccb63b65983ebd"
 dependencies = [
  "ed25519-dalek",
- "five8 0.2.1",
+ "five8 1.0.0",
  "serde",
  "serde-big-array",
  "serde_derive",
  "solana-sanitize 3.0.1",
+ "wincode",
 ]
 
 [[package]]
@@ -6217,6 +6216,30 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+
+[[package]]
+name = "wincode"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5cec722a3274e47d1524cbe2cea762f2c19d615bd9d73ada21db9066349d57e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "thiserror 2.0.17",
+ "wincode-derive",
+]
+
+[[package]]
+name = "wincode-derive"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8961eb04054a1b2e026b5628e24da7e001350249a787e1a85aa961f33dc5f286"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.108",
+]
 
 [[package]]
 name = "windows-core"
