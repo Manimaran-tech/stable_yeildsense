@@ -1447,16 +1447,16 @@
     "@codama/nodes" "1.5.0"
     "@codama/visitors-core" "1.5.0"
 
-"@codama/renderers-js@^1.6.2":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@codama/renderers-js/-/renderers-js-1.6.2.tgz#6f24e6fa02416a7cc01f0e598159800945ed28a0"
-  integrity sha512-bfK4vW4KTDgjsEIKRQcUR5GR01bzgjATvEFpdeMhwUZl0737EHHo+j55khew+ubWVJm0VQv51WcSlgSTH0Yo+A==
+"@codama/renderers-js@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@codama/renderers-js/-/renderers-js-1.7.0.tgz#508037700767732d370c535995e0ccb13f3f2010"
+  integrity sha512-WwKkSkNPdUBVWjGmkG+RNXyZ5K/4ji8UZQGzowDNTrqktUrqPsBThOkc7Zpmv+TpCapxrfjj0Txpo+0q5FjKGw==
   dependencies:
     "@codama/errors" "^1.4.4"
     "@codama/nodes" "^1.4.4"
     "@codama/renderers-core" "^1.3.4"
     "@codama/visitors-core" "^1.4.4"
-    "@solana/codecs-strings" "^5.0.0"
+    "@solana/codecs-strings" "^6.0.0"
     prettier "^3.8.1"
     semver "^7.7.3"
 
@@ -5597,6 +5597,15 @@
     "@solana/codecs-core" "4.0.0"
     "@solana/codecs-numbers" "4.0.0"
     "@solana/errors" "4.0.0"
+
+"@solana/codecs-strings@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-strings/-/codecs-strings-6.0.0.tgz#a8a962587c4906af1f07638d0888f9ef1f1bbf93"
+  integrity sha512-JZ+yPYMikkOzofbawnQ4OJ8LEusx2lspDXtUdZ6bf+99E+00x9HCbv0uiXykN8HPh5fampJVfC+6egaRgJl/dg==
+  dependencies:
+    "@solana/codecs-core" "6.0.0"
+    "@solana/codecs-numbers" "6.0.0"
+    "@solana/errors" "6.0.0"
 
 "@solana/codecs@2.0.0-rc.1":
   version "2.0.0-rc.1"
