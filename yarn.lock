@@ -4169,55 +4169,55 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nx/nx-darwin-arm64@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-darwin-arm64/-/nx-darwin-arm64-22.4.2.tgz#8bf7199abd269ed54fc3c96d6c1a8e926529b20e"
-  integrity sha512-l/NLbzB7UnE/YnHuFXrMtpchDZaKCXMrcAgleOkxWotqiQ/Fs5hOJ5xFvAbzX1FF/2MHOKXqeBVPfq0y0Vbj4A==
+"@nx/nx-darwin-arm64@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-darwin-arm64/-/nx-darwin-arm64-22.4.5.tgz#9ba81bf90b3f29045e5488494601813a3a0c8686"
+  integrity sha512-zdRHZv1AMvzgp+5g2VZNXXuqk0/n1wOFksOeZ6BRyKg6hC2YkjGyn5xle/UK668MDAwe9KKm4jizvztK/LlPuA==
 
-"@nx/nx-darwin-x64@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-darwin-x64/-/nx-darwin-x64-22.4.2.tgz#b4b2cef209ea0106b362cf46354193e68e06f2f9"
-  integrity sha512-H6Vf3VX49wQqxSps2zg5Xym+qjJCkGzCRkD9jPyzBfnUnuMc44tyOYBpO9kdSurq8SYXOu/HP/oFg5EVRiRCQg==
+"@nx/nx-darwin-x64@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-darwin-x64/-/nx-darwin-x64-22.4.5.tgz#47e5cf62d36eefb47bb92175aa3fdebe947dee2a"
+  integrity sha512-1NVWaSgpa8yawi2UILX4NE9UcMuNzAAGh95JSV2yJovRfKxFQgQSB6hj0gpJu+TLLVCroTqy4woSQ2a0SPodeQ==
 
-"@nx/nx-freebsd-x64@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-freebsd-x64/-/nx-freebsd-x64-22.4.2.tgz#498d73637b586abbae9e6d91e2b69581799e977d"
-  integrity sha512-sNpGYjoOo+cDNLZ6mUK2P6rPN0p55pEyKh5lD7M0p1+DfeDls83NwHuS6apmayo9eUH/JDFFWgIY6Q8Q2uo0Iw==
+"@nx/nx-freebsd-x64@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-freebsd-x64/-/nx-freebsd-x64-22.4.5.tgz#19cdaefd1f789062ac7c37733faa666d006241c4"
+  integrity sha512-baaLz53wr/HsVfSJ7ZgIFCPAb/OtP7yPPasb3eIu65oVhSswGfgvz9+YINhuInUgW7x7STmRnhGeR8pj6iqFqw==
 
-"@nx/nx-linux-arm-gnueabihf@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm-gnueabihf/-/nx-linux-arm-gnueabihf-22.4.2.tgz#a55758a7657d35c579876e621a3ff666174513ef"
-  integrity sha512-KyjYmhPvJmBzB7bpqjyEWytCi6RwX1Hjly6HU2NjD6dDUg50Gq5qQr5hA+eTBNwxsdOKOB+uCe2+jVw+GZ5vwg==
+"@nx/nx-linux-arm-gnueabihf@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm-gnueabihf/-/nx-linux-arm-gnueabihf-22.4.5.tgz#f165f5d710975e9ed7d2b0f506531b1cbfd90614"
+  integrity sha512-wRBPv/l39tz+sQjZUH4hygCsd/DoUXUbDYkR6lnNXWHAVyPUh48/27JozM8hD3o/G3O2Vd8PFQasIXtvy2GS0Q==
 
-"@nx/nx-linux-arm64-gnu@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm64-gnu/-/nx-linux-arm64-gnu-22.4.2.tgz#087deb00bc7ac61809cc4f6af657ba159f98b7a2"
-  integrity sha512-jc7vB/iIHOrA3wg7nch4wBRpPtxuytmgsL1Qf1Ue1LB+PPZSlxYxwujO5YtfcwoB78vnBqt6wPTjx4nyvLcCOQ==
+"@nx/nx-linux-arm64-gnu@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm64-gnu/-/nx-linux-arm64-gnu-22.4.5.tgz#842e62287bb86c8b47561f4c32ab15c5ee1727f5"
+  integrity sha512-6B/yCFiqjvV2Bkz6MKUtfFWjwtiF53DN07K1BFksMpQef+h2yE1IrGaG/OCl6VaVl4VRzQgLOluqP96M1yhDgg==
 
-"@nx/nx-linux-arm64-musl@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm64-musl/-/nx-linux-arm64-musl-22.4.2.tgz#f624030024bf7a4781271b03da0a298d2855aeef"
-  integrity sha512-7m1u/McVDer4m+c6LDSdxuW2nIani2IeMV4Lvf2LjK5SrDcnqw47CybMeykaarREuY3UQgda04qXPSHWTKUwXg==
+"@nx/nx-linux-arm64-musl@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-linux-arm64-musl/-/nx-linux-arm64-musl-22.4.5.tgz#f3d8b813c1577d9f68543ef3a3fb68f319f085e1"
+  integrity sha512-n0v60vRYn7BDHWB588snPZntLO2XC8/pvLd+QunneM2VGEPf51n5llX5U3AwTt/ybaZHWhbuHv0sJBIbT4I0GA==
 
-"@nx/nx-linux-x64-gnu@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-linux-x64-gnu/-/nx-linux-x64-gnu-22.4.2.tgz#31a942d5270e63717669c94a707a8eb7d47c83cf"
-  integrity sha512-IBpm9dE0EdKR7SPZsC12beCk6/iSgSKCQnX5x3c+3cJSxP4Nld9s2TIfTLph1vtjNrgZUrrMO/3KFovzw1szoQ==
+"@nx/nx-linux-x64-gnu@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-linux-x64-gnu/-/nx-linux-x64-gnu-22.4.5.tgz#4b854777c7b3aa2939b475db6210d72134a86b64"
+  integrity sha512-zT7nb1PRE3NcW/HFnbgKJ9ZPtCOeVDpbJ5J4ZhHj36ZAUWZVXFEIPq9VTIZFy5+0pioLUIClQQY7OUfwnV/Zig==
 
-"@nx/nx-linux-x64-musl@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-linux-x64-musl/-/nx-linux-x64-musl-22.4.2.tgz#c6a713be84ec18a3066a550ed74dd80d4c686cf9"
-  integrity sha512-OmXbuSH1SMq2zSwV5lyXP1a4MFDvllZUFbdas7FVr2+gA6vT2xjUVpHiZpb7c0aoTX5X/558L3ic/+JNbDNZyg==
+"@nx/nx-linux-x64-musl@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-linux-x64-musl/-/nx-linux-x64-musl-22.4.5.tgz#2d5aad03fe4f35a8524ee021bf82ef160327d0ec"
+  integrity sha512-r8Rls5BS7lGQbUNX1Z1S370XrOacOU1bQ/dxY8i7qahFQKnMwpFo0W8odhgzjk+vrC/WLf9jOgz5/JPzehQBIw==
 
-"@nx/nx-win32-arm64-msvc@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-win32-arm64-msvc/-/nx-win32-arm64-msvc-22.4.2.tgz#4d5f7499be3b5c84fa842a4f2c38e1122ae782f8"
-  integrity sha512-bnoJ+dOtaAoAn/m7rhClZyMxXu7OcN8oan0TMTM5PvE8qMhLEvwU88l4LC769b/hRvuuVXUGCYKHGC92LQrtJA==
+"@nx/nx-win32-arm64-msvc@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-win32-arm64-msvc/-/nx-win32-arm64-msvc-22.4.5.tgz#f15332539915c8e95adc33e5b23088303a068982"
+  integrity sha512-Lv81LTnG6sSvBOq2vDSeyfzpF9X0cTGlJdzJOJzPZXCZGFhTV1ig9TdLiij/GM2JwV4Kvq5Co6YzA5dxtGUphQ==
 
-"@nx/nx-win32-x64-msvc@22.4.2":
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/@nx/nx-win32-x64-msvc/-/nx-win32-x64-msvc-22.4.2.tgz#d1dd682ac96f8ca2b35d8fa5dee08808a207d32b"
-  integrity sha512-3JtK1Zty6U/Wc2qDqMPJoYcRk/GrySp8fixe407g1S8ZkKmYMoCyDJAo8mQSu21i3Mkhvwloeoo97yR5//NaqA==
+"@nx/nx-win32-x64-msvc@22.4.5":
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/@nx/nx-win32-x64-msvc/-/nx-win32-x64-msvc-22.4.5.tgz#f027ce9011188a8b001f372d0d60fa43665a1009"
+  integrity sha512-52RfBcq9PXt76soCAZAJcNmCYrdsg6BvhBmjf0IFTMZ8IaeqZ9ktxAy1TZf/gCkOaM3ly4htbYMStiZ4MHX7Eg==
 
 "@particle-network/analytics@^1.0.1":
   version "1.0.2"
@@ -9114,19 +9114,10 @@ axios@^0.26.1:
   dependencies:
     follow-redirects "^1.14.8"
 
-axios@^1.12.0:
+axios@^1.12.0, axios@^1.12.2:
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.4.tgz#15d109a4817fb82f73aea910d41a2c85606076bc"
   integrity sha512-1wVkUaAO6WyaYtCkcYCOx12ZgpGf9Zif+qXa4n+oYzK558YryKqiL6UWwd5DqiH3VRW0GYhTZQ/vlgJrCoNQlg==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.4"
-    proxy-from-env "^1.1.0"
-
-axios@^1.12.2:
-  version "1.13.2"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.13.2.tgz"
-  integrity sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.4"
@@ -15127,10 +15118,10 @@ nunjucks@^3.2.4:
     asap "^2.0.3"
     commander "^5.1.0"
 
-nx@^22.0.4:
-  version "22.4.2"
-  resolved "https://registry.yarnpkg.com/nx/-/nx-22.4.2.tgz#1e563a0712e48a92597176baa4bb03d85baf8dbf"
-  integrity sha512-AlL79ED96d3gG0QtIQ+KXZwZAu/2O8PL/5rcLHxPMoF5Ag31e3krHWoFg3nESJKkFzgOYFilyWHZYPdZc7dSzw==
+nx@^22.4.5:
+  version "22.4.5"
+  resolved "https://registry.yarnpkg.com/nx/-/nx-22.4.5.tgz#f9d1d84922804d58a0d73029345f4b5b44669c85"
+  integrity sha512-l68kzhnemXXGCDS9/W8eccZ7Bzse9pw1oJ466pzDM89MbA6hEaOQ0p+eDXZI++iWl0T+lYJ56EDhO23syKzt9g==
   dependencies:
     "@napi-rs/wasm-runtime" "0.2.4"
     "@yarnpkg/lockfile" "^1.1.0"
@@ -15168,16 +15159,16 @@ nx@^22.0.4:
     yargs "^17.6.2"
     yargs-parser "21.1.1"
   optionalDependencies:
-    "@nx/nx-darwin-arm64" "22.4.2"
-    "@nx/nx-darwin-x64" "22.4.2"
-    "@nx/nx-freebsd-x64" "22.4.2"
-    "@nx/nx-linux-arm-gnueabihf" "22.4.2"
-    "@nx/nx-linux-arm64-gnu" "22.4.2"
-    "@nx/nx-linux-arm64-musl" "22.4.2"
-    "@nx/nx-linux-x64-gnu" "22.4.2"
-    "@nx/nx-linux-x64-musl" "22.4.2"
-    "@nx/nx-win32-arm64-msvc" "22.4.2"
-    "@nx/nx-win32-x64-msvc" "22.4.2"
+    "@nx/nx-darwin-arm64" "22.4.5"
+    "@nx/nx-darwin-x64" "22.4.5"
+    "@nx/nx-freebsd-x64" "22.4.5"
+    "@nx/nx-linux-arm-gnueabihf" "22.4.5"
+    "@nx/nx-linux-arm64-gnu" "22.4.5"
+    "@nx/nx-linux-arm64-musl" "22.4.5"
+    "@nx/nx-linux-x64-gnu" "22.4.5"
+    "@nx/nx-linux-x64-musl" "22.4.5"
+    "@nx/nx-win32-arm64-msvc" "22.4.5"
+    "@nx/nx-win32-x64-msvc" "22.4.5"
 
 object-assign@^4.0.1, object-assign@^4.1.1:
   version "4.1.1"
