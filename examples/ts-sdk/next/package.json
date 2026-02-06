@@ -10,8 +10,8 @@
   "dependencies": {
     "@orca-so/tx-sender": "*",
     "@orca-so/whirlpools": "*",
-    "@solana/kit": "^6.0.0",
-    "@solana/react": "^6.0.0",
+    "@solana/kit": "^6.0.1",
+    "@solana/react": "^6.0.1",
     "@wallet-standard/react": "^1.0.1",
     "next": "^16.1.6",
     "react": "^19.2.0",

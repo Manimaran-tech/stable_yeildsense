@@ -34,11 +34,11 @@
     "@solana-program/system": "^0.10.0"
   },
   "peerDependencies": {
-    "@solana/kit": "^6.0.0",
+    "@solana/kit": "^6.0.1",
     "@solana/rpc": "^5.0.0"
   },
   "devDependencies": {
-    "@solana/kit": "^6.0.0",
+    "@solana/kit": "^6.0.1",
     "tsup": "^8.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
