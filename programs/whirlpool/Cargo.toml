@@ -27,7 +27,7 @@ arrayref = { version = "=0.3.9" }
 solana-security-txt = { version = "=1.1.2" }
 bytemuck = { version = "=1.25.0", features = ["derive", "min_const_generics"] }
 num_enum = { version = "=0.7.5" }
-bitflags = { version = "=2.10.0" }
+bitflags = { version = "=2.11.0" }
 
 [dev-dependencies]
 proptest = "=1.10.0"
