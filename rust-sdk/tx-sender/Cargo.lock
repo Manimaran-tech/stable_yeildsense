@@ -2237,7 +2237,7 @@ dependencies = [
  "solana-client",
  "solana-commitment-config",
  "solana-compute-budget-interface",
- "solana-hash 3.1.0",
+ "solana-hash 4.2.0",
  "solana-instruction",
  "solana-keypair",
  "solana-message",
