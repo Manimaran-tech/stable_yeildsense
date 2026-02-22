@@ -172,7 +172,7 @@ powershell -ExecutionPolicy Bypass -File start_services.ps1
 
 ### Staking APY Calculation
 - **Sources**: Real-time RPC inflation rate and MEV rewards
-- **Supported Tokens**: JupSOL, mSOL, bSOL, stSOL
+- **Supported Tokens**: JupSOL
 
 ---
 
