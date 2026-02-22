@@ -80,7 +80,7 @@ This deployment mirrors the full functionality of the development environment an
 |         |                  |                     |                 |
 |  +------------------------------------------------------------+   |
 |  |                    SOLANA BLOCKCHAIN                        |   |
-|  |   Orca Whirlpools  |  Inco Encryption  |  SPL Tokens        |   |
+|  |            Orca Whirlpools  |  SPL Tokens                   |   |
 |  +------------------------------------------------------------+   |
 |                                                                    |
 |  +----------------+  +---------------------------------------+     |
