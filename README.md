@@ -12,47 +12,28 @@
 </p>
 
 <p align="center">
-  <i>Maximize your DeFi yields with intelligent range predictions and privacy-preserving deposits</i>
+  <i>Maximize your DeFi yields with intelligent range predictions</i>
 </p>
 
 <p align="center">
-  <a href="https://yieldsense-dashboard-egq-zb.thinkroot.app/">Live Demo</a>
+  <a href="https://yieldsense-app.web.app/">Live Demo</a>
 </p>
 
 ---
 
 ## Overview
 
-YieldSense is an advanced liquidity management platform that combines machine learning, real-time analytics, and privacy-preserving technology to optimize concentrated liquidity positions on Orca Whirlpools. The platform enables users to make data-driven decisions when providing liquidity on the Solana blockchain.
+YieldSense is an advanced liquidity management platform that combines machine learning and real-time analytics to optimize concentrated liquidity positions on Orca Whirlpools. The platform enables users to make data-driven decisions when providing liquidity on the Solana blockchain.
 
 ---
 
-## Deployment Options
+## Deployment
 
-YieldSense is available in two deployment configurations:
+YieldSense is deployed and publicly accessible at:
 
-### Local Development Environment
+**Live URL:** https://yieldsense-app.web.app/
 
-The primary development version runs locally and provides the complete feature set. To use this version:
-
-1. Clone the repository from GitHub
-2. Install dependencies for all services (Frontend, Backend, ML API, Trading API)
-3. Run all four services locally using the provided startup script
-
-This approach gives full control over the environment and allows developers to explore, modify, and extend the codebase. Refer to the Quick Start section below for detailed installation instructions.
-
-### Thinkroot Production Deployment
-
-To validate the system architecture under different conditions, the complete YieldSense application was deployed on Thinkroot infrastructure. This deployment allows observation of system performance under:
-
-- Different network latency conditions
-- Varied user behavior patterns
-- Alternative liquidity pool interactions
-- External infrastructure dependencies
-
-The Thinkroot deployment mirrors the full functionality of the local development environment and serves as a reference implementation for production-grade deployments.
-
-**Thinkroot URL:** [https://yieldsense-dashboard-egq-zb.thinkroot.app/](https://yieldsense-dashboard-egq-zb.thinkroot.app/)
+This deployment mirrors the full functionality of the development environment and demonstrates a production-ready architecture for AI-powered DeFi tools.
 
 ---
 
@@ -67,13 +48,6 @@ The Thinkroot deployment mirrors the full functionality of the local development
 - 24-hour yield calculations based on pool volume and fee tier
 - Concentration heuristics showing expected returns before deposit
 - Accurate fee tier scaling (0.01%, 0.04%, 0.30%)
-
-### Privacy-Preserving Deposits with Inco Network
-YieldSense integrates the **Inco Network Solana SDK** for enhanced privacy:
-- Encrypted deposit amounts using Inco's confidential computing
-- Deposit values are hidden from on-chain observers
-- Full transparency maintained only for the depositor
-- Protects users from front-running and MEV exploitation
 
 ### Telegram Alert System
 - Real-time out-of-range notifications when positions require attention
@@ -219,7 +193,6 @@ powershell -ExecutionPolicy Bypass -File start_services.ps1
 ## Security
 
 - **Client-Side Signing**: No private keys are stored on servers
-- **Inco Encryption**: Deposit amounts are encrypted on-chain
 - **Environment Variables**: All secrets are managed through environment configuration
 - **Rate Limiting**: Configured RPC endpoints with appropriate limits
 
