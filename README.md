@@ -102,23 +102,9 @@ This deployment mirrors the full functionality of the development environment an
 | **Backend** | Node.js, Express, TypeScript, WebSocket |
 | **ML API** | Python, FastAPI, scikit-learn, TensorFlow, Transformers |
 | **Blockchain** | Solana, Orca Whirlpools SDK, Anchor Framework |
-| **Privacy** | Inco Network Solana SDK |
 | **Database** | Firebase Firestore |
 | **Alerts** | Telegram Bot API |
 | **Hosting** | Thinkroot, Render.com |
-
----
-
-## Inco Network Integration
-
-YieldSense leverages **Inco Network** for privacy-preserving liquidity deposits:
-
-- **Confidential Transactions**: Deposit amounts are encrypted before being submitted on-chain
-- **MEV Protection**: Hidden transaction values prevent front-running attacks
-- **User Privacy**: Only the depositor can decrypt and view their actual deposit amounts
-- **SDK Integration**: Utilizes `@inco/solana-sdk` for seamless encryption/decryption operations
-
-This integration ensures that large liquidity providers can participate in DeFi without exposing their strategies to competitors or malicious actors.
 
 ---
 
