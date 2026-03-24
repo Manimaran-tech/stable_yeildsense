@@ -40,7 +40,7 @@
   "devDependencies": {
     "@solana/kit": "^6.0.1",
     "tsup": "^8.4.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "vitest": "^4.0.16"
   },
   "repository": {

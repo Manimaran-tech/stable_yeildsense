@@ -24,7 +24,7 @@
     "@types/bn.js": "~5.2.0",
     "@types/jest": "^30.0.0",
     "litesvm": "^0.5.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "vitest": "^4.0.16"
   },
   "scripts": {
