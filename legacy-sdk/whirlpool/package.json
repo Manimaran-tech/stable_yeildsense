@@ -25,7 +25,7 @@
     "@types/jest": "^30.0.0",
     "litesvm": "^0.5.0",
     "typescript": "^6.0.2",
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.1"
   },
   "scripts": {
     "build": "mkdir -p ./src/artifacts && cp -f ../../target/idl/whirlpool.json ./src/artifacts/whirlpool.json && cp -f ../../target/types/whirlpool.ts ./src/artifacts/whirlpool.ts && tsc",
