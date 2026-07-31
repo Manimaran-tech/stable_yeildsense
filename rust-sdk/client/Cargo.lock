@@ -2361,7 +2361,7 @@ dependencies = [
  "solana-instruction 3.1.0",
  "solana-program",
  "solana-program-error 3.0.1",
- "solana-pubkey 3.0.0",
+ "solana-pubkey 4.0.0",
  "thiserror 2.0.19",
 ]
 
@@ -3483,6 +3483,7 @@ version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f67735365edc7fb19ed74ec950597107c8ee9cbfebac57b8868b3e78fb6df16"
 dependencies = [
+ "borsh 1.8.0",
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek",
@@ -3491,10 +3492,12 @@ dependencies = [
  "serde",
  "serde_derive",
  "sha2-const-stable",
+ "solana-atomic-u64 3.0.0",
  "solana-define-syscall 5.0.0",
  "solana-program-error 3.0.1",
  "solana-sanitize 3.0.1",
  "solana-sha256-hasher 3.1.0",
+ "wincode 0.4.9",
 ]
 
 [[package]]
@@ -4919,7 +4922,7 @@ dependencies = [
  "serde_derive",
  "solana-ed25519",
  "solana-sanitize 3.0.1",
- "wincode",
+ "wincode 0.6.0",
 ]
 
 [[package]]
@@ -6411,6 +6414,19 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "wincode"
+version = "0.4.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "657690780ce23e6f66576a782ffd88eb353512381817029cc1d7a99154bb6d1f"
+dependencies = [
+ "pastey",
+ "proc-macro2",
+ "quote",
+ "thiserror 2.0.19",
+ "wincode-derive 0.4.6",
+]
+
+[[package]]
+name = "wincode"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5d39d1a984eb7ae37afa348f058216d62a6d5f71640f4113a8114386c2a812a"
@@ -6419,7 +6435,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "thiserror 2.0.19",
- "wincode-derive",
+ "wincode-derive 0.5.0",
+]
+
+[[package]]
+name = "wincode-derive"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15ab90b719560d0fda79c74550ad1c948d17b118765942838055ebaf34d67071"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]
