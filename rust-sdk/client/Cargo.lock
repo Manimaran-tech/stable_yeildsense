@@ -2361,7 +2361,7 @@ dependencies = [
  "solana-instruction 3.5.0",
  "solana-program",
  "solana-program-error 3.0.1",
- "solana-pubkey 3.0.0",
+ "solana-pubkey 4.3.0",
  "thiserror 2.0.19",
 ]
 
@@ -3483,6 +3483,7 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01332a01c0a3098404d55a724c8d9a92aed4a50fe40a7dd0c7a51e29274c14de"
 dependencies = [
+ "borsh 1.8.0",
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek",
@@ -3491,10 +3492,12 @@ dependencies = [
  "serde",
  "serde_derive",
  "sha2-const-stable",
+ "solana-atomic-u64 3.0.0",
  "solana-define-syscall 5.2.0",
  "solana-program-error 3.0.1",
  "solana-sanitize 3.0.1",
  "solana-sha256-hasher 3.1.0",
+ "wincode",
 ]
 
 [[package]]
