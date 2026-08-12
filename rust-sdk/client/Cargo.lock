@@ -435,9 +435,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.91"
+version = "0.1.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae36dc4177970ef04fde5178d3e2429882def40e57a451f919c098f72baa6cec"
+checksum = "82f6aeea286b8eb4dd3431a1be1b59d290ace00f5bfd8e2a159bc2a05e2c1667"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2361,7 +2361,7 @@ dependencies = [
  "solana-instruction 3.5.0",
  "solana-program",
  "solana-program-error 3.0.1",
- "solana-pubkey 4.3.0",
+ "solana-pubkey 3.0.0",
  "thiserror 2.0.19",
 ]
 
@@ -3483,7 +3483,6 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01332a01c0a3098404d55a724c8d9a92aed4a50fe40a7dd0c7a51e29274c14de"
 dependencies = [
- "borsh 1.8.0",
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek",
@@ -3492,12 +3491,10 @@ dependencies = [
  "serde",
  "serde_derive",
  "sha2-const-stable",
- "solana-atomic-u64 3.0.0",
  "solana-define-syscall 5.2.0",
  "solana-program-error 3.0.1",
  "solana-sanitize 3.0.1",
  "solana-sha256-hasher 3.1.0",
- "wincode",
 ]
 
 [[package]]
