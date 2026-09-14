@@ -2448,10 +2448,10 @@ dependencies = [
  "solana-account-info 3.1.1",
  "solana-client",
  "solana-cpi 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 4.0.0",
  "solana-program",
  "solana-program-error 3.0.1",
- "solana-pubkey 4.3.0",
+ "solana-pubkey 3.0.0",
  "thiserror 2.0.19",
 ]
 
@@ -3494,7 +3494,7 @@ dependencies = [
  "solana-config-interface",
  "solana-epoch-schedule 3.0.0",
  "solana-fee-calculator 3.0.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-loader-v3-interface 6.1.0",
  "solana-nonce",
  "solana-program-option 3.0.0",
@@ -3583,7 +3583,6 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01332a01c0a3098404d55a724c8d9a92aed4a50fe40a7dd0c7a51e29274c14de"
 dependencies = [
- "borsh 1.8.1",
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek",
@@ -3592,12 +3591,10 @@ dependencies = [
  "serde",
  "serde_derive",
  "sha2-const-stable",
- "solana-atomic-u64 3.0.0",
  "solana-define-syscall 5.2.0",
  "solana-program-error 3.0.1",
  "solana-sanitize 3.0.1",
  "solana-sha256-hasher 3.1.0",
- "wincode",
 ]
 
 [[package]]
@@ -3611,7 +3608,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "solana-clock 3.0.1",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instruction-error",
  "solana-pubkey 4.3.0",
  "solana-sdk-ids 3.0.0",
@@ -3689,7 +3686,7 @@ dependencies = [
  "solana-connection-cache",
  "solana-epoch-info",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-keypair",
  "solana-measure",
  "solana-message",
@@ -3723,7 +3720,7 @@ dependencies = [
  "solana-commitment-config",
  "solana-epoch-info",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-keypair",
  "solana-message",
  "solana-pubkey 3.0.0",
@@ -3789,7 +3786,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "solana-account",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-pubkey 3.0.0",
  "solana-sdk-ids 3.0.0",
  "solana-short-vec",
@@ -3841,7 +3838,7 @@ checksum = "4dea26709d867aada85d0d3617db0944215c8bb28d3745b912de7db13a23280c"
 dependencies = [
  "solana-account-info 3.1.1",
  "solana-define-syscall 4.0.1",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-pubkey 4.3.0",
  "solana-stable-layout 3.0.0",
@@ -4010,7 +4007,7 @@ dependencies = [
  "solana-address-lookup-table-interface",
  "solana-clock 3.0.1",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-keccak-hasher",
  "solana-message",
  "solana-nonce",
@@ -4133,16 +4130,25 @@ dependencies = [
 
 [[package]]
 name = "solana-instruction"
-version = "3.5.0"
+version = "3.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d70cf6ece1070a66d25e68274f338f29664794669c175223940a298645ef3495"
+checksum = "6d8f113d1312870e2d8698033e9d153d3329c520e1065f05145a55a889e21c91"
+dependencies = [
+ "solana-instruction 4.0.0",
+ "solana-instruction-error",
+]
+
+[[package]]
+name = "solana-instruction"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ea8442b67a58dd54d5497bfc6cd3106b00f9fe6f6877d33c271c3ec4672eedc"
 dependencies = [
  "bincode",
  "borsh 1.8.1",
  "serde",
  "serde_derive",
  "solana-define-syscall 5.2.0",
- "solana-instruction-error",
  "solana-pubkey 4.3.0",
 ]
 
@@ -4183,7 +4189,7 @@ checksum = "7ddf67876c541aa1e21ee1acae35c95c6fbc61119814bfef70579317a5e26955"
 dependencies = [
  "bitflags 2.10.0",
  "solana-account-info 3.1.1",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instruction-error",
  "solana-program-error 3.0.1",
  "solana-pubkey 3.0.0",
@@ -4283,7 +4289,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_derive",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-pubkey 3.0.0",
  "solana-sdk-ids 3.0.0",
 ]
@@ -4306,7 +4312,7 @@ dependencies = [
  "serde_derive",
  "solana-address 2.7.0",
  "solana-hash 4.6.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-sanitize 3.0.1",
  "solana-sdk-ids 3.0.0",
  "solana-short-vec",
@@ -4454,7 +4460,7 @@ dependencies = [
  "solana-example-mocks",
  "solana-fee-calculator 3.0.0",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instruction-error",
  "solana-instructions-sysvar 3.0.0",
  "solana-keccak-hasher",
@@ -4762,7 +4768,7 @@ dependencies = [
  "solana-epoch-schedule 3.0.0",
  "solana-feature-gate-interface 3.0.0",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-message",
  "solana-pubkey 3.0.0",
  "solana-rpc-client-api",
@@ -5104,7 +5110,7 @@ version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1da74507795b6e8fb60b7c7306c0c36e2c315805d16eaaf479452661234685ac"
 dependencies = [
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-pubkey 3.0.0",
 ]
 
@@ -5138,7 +5144,7 @@ dependencies = [
  "serde_derive",
  "solana-clock 3.0.1",
  "solana-cpi 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-pubkey 3.0.0",
  "solana-system-interface 2.0.0",
@@ -5226,7 +5232,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_derive",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-msg 3.0.0",
  "solana-program-error 3.0.1",
  "solana-pubkey 3.0.0",
@@ -5287,7 +5293,7 @@ dependencies = [
  "solana-epoch-schedule 3.0.0",
  "solana-fee-calculator 3.0.0",
  "solana-hash 4.6.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-last-restart-slot 3.0.0",
  "solana-program-entrypoint 3.1.0",
  "solana-program-error 3.0.1",
@@ -5385,7 +5391,7 @@ dependencies = [
  "serde_derive",
  "solana-address 2.7.0",
  "solana-hash 4.6.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instruction-error",
  "solana-message",
  "solana-sanitize 3.0.1",
@@ -5406,7 +5412,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "solana-account",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instructions-sysvar 3.0.0",
  "solana-pubkey 3.0.0",
  "solana-rent 3.1.0",
@@ -5456,7 +5462,7 @@ dependencies = [
  "serde_json",
  "solana-account-decoder-client-types",
  "solana-commitment-config",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-message",
  "solana-pubkey 3.0.0",
  "solana-reward-info",
@@ -5513,7 +5519,7 @@ dependencies = [
  "serde_with",
  "solana-clock 3.0.1",
  "solana-hash 3.1.0",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instruction-error",
  "solana-pubkey 3.0.0",
  "solana-rent 3.1.0",
@@ -5559,7 +5565,7 @@ dependencies = [
  "serde_json",
  "sha3",
  "solana-derivation-path",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-pubkey 3.0.0",
  "solana-sdk-ids 3.0.0",
  "solana-seed-derivable",
@@ -5669,7 +5675,7 @@ dependencies = [
  "num-traits",
  "num_enum",
  "solana-account-info 3.1.1",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-program-option 3.0.0",
  "solana-program-pack 3.1.0",
@@ -5694,7 +5700,7 @@ dependencies = [
  "bytemuck",
  "solana-account-info 3.1.1",
  "solana-curve25519",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-instructions-sysvar 3.0.0",
  "solana-msg 3.0.0",
  "solana-program-error 3.0.1",
@@ -5726,7 +5732,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "num_enum",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-pubkey 3.0.0",
  "spl-discriminator",
@@ -5745,7 +5751,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "num_enum",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-program-option 3.0.0",
  "solana-program-pack 3.1.0",
@@ -5764,7 +5770,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "solana-borsh",
- "solana-instruction 3.5.0",
+ "solana-instruction 3.5.1",
  "solana-program-error 3.0.1",
  "solana-pubkey 3.0.0",
  "spl-discriminator",
