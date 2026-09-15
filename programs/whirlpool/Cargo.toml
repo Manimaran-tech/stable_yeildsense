@@ -18,8 +18,8 @@ mainnet = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
-anchor-lang = { version = "=0.32.1" }
-anchor-spl = { version = "=0.32.1", features = ["metadata", "memo"] }
+anchor-lang = { version = "=0.32.2" }
+anchor-spl = { version = "=0.32.2", features = ["metadata", "memo"] }
 spl-transfer-hook-interface ={ version = "=2.1.0" }
 solana-program = { version = "=5.0.0" }
 uint = { version = "=0.10.1", default-features = false }
