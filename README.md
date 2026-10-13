@@ -4,17 +4,19 @@
 [![Blockchain: Solana](https://img.shields.io/badge/Blockchain-Solana-9945FF.svg?logo=solana&logoColor=white)](https://solana.com/)
 [![DEX: Orca Whirlpools](https://img.shields.io/badge/DEX-Orca%20Whirlpools-FFD15C.svg)](https://www.orca.so/)
 [![Frontend: React 19](https://img.shields.io/badge/Frontend-React%2019-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
-[![Backend: TypeScript](https://img.shields.io/badge/Backend-Node.js%20%2F%20Express-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![ML Engine: FastAPI](https://img.shields.io/badge/ML%20API-FastAPI%20%2F%20Python-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Backend: Render](https://img.shields.io/badge/Backend-Render.com-46E3B7.svg?logo=render&logoColor=black)](https://render.com/)
+[![ML Microservice: Railway](https://img.shields.io/badge/ML%20Engine-Railway.app-0B0D0E.svg?logo=railway&logoColor=white)](https://railway.app/)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-Verified%20Containers-2496ED.svg?logo=docker&logoColor=white)](https://hub.docker.com/u/markmayandi)
 
 > **Quantitative DeFi infrastructure combining machine learning range forecasting, automated position management, and real-time risk telemetry for concentrated liquidity market makers.**
 
 | Service | Environment | Live URL | Status |
 | :--- | :--- | :--- | :--- |
 | **Interactive Web Application** | Firebase Hosting | [yieldsense-app.web.app](https://yieldsense-app.web.app/) | ![Active](https://img.shields.io/badge/status-active-brightgreen) |
-| **Position Management Backend** | Node.js / Express | Local Port 3001 | ![Verified](https://img.shields.io/badge/service-operational-brightgreen) |
-| **ML Volatility & Range API** | FastAPI / Python | Local Port 8000 | ![Verified](https://img.shields.io/badge/service-operational-brightgreen) |
-| **Trading Aggregation Gateway** | Express / TypeScript | Local Port 3002 | ![Verified](https://img.shields.io/badge/service-operational-brightgreen) |
+| **Position Management API & WS** | Render.com | [yieldsense-backend-a8c2.onrender.com](https://yieldsense-backend-a8c2.onrender.com/health) | ![Active](https://img.shields.io/badge/backend-online-brightgreen) |
+| **Trading Aggregation & Swap API** | Render.com | [yieldsense-trading-api-a8c2.onrender.com](https://yieldsense-trading-api-a8c2.onrender.com/health) | ![Active](https://img.shields.io/badge/trading--api-online-brightgreen) |
+| **Quantitative ML Microservice** | Railway / Docker | [yieldsense-ml-api-production.up.railway.app](https://yieldsense-ml-api-production.up.railway.app/api/health) | ![Healthy](https://img.shields.io/badge/container-online-brightgreen) |
+| **Docker Hub Container Registry** | Docker Hub | [markmayandi/yieldsense-ml-api](https://hub.docker.com/r/markmayandi/yieldsense-ml-api) | ![Docker](https://img.shields.io/badge/docker%20images-verified-blue) |
 
 ---
 
@@ -53,39 +55,44 @@ YieldSense eliminates manual position adjustment and guesswork by coupling **GAR
 
 ---
 
-## System Architecture
+## Multi-Tier Production Architecture
 
-YieldSense coordinates four specialized services into a continuous analytics and execution pipeline:
+YieldSense coordinates four specialized services into a continuous, low-latency analytics and execution pipeline:
 
 ```mermaid
 flowchart TD
-    subgraph DATA["1. Telemetry & On-Chain Data Layer"]
-        SOL["Solana Mainnet RPC"] --> ORCA["Orca Whirlpools SDK"]
-        ORCA --> POOL["Pool Reserve & Tick Arrays"]
-        BINANCE["Binance / Pyth Feed"] --> OHLCV["OHLCV Price & Volume History"]
+    subgraph TIER1["Tier 1: Client Application (Firebase Hosting)"]
+        WEB["React 19 Web Application<br/><code>https://yieldsense-app.web.app</code>"]
+        WALLET["Solana Wallet Standard<br/>(Phantom / Solflare)"]
+        WEB <--> WALLET
     end
 
-    subgraph ML["2. Quantitative ML & Econometric Engine"]
-        OHLCV --> GARCH["GARCH(1,1) Volatility Estimator"]
-        OHLCV --> LSTM["Hybrid Gradient Boost + LSTM Regressor"]
-        GARCH --> CONF["Confidence Band Generator (95% CI)"]
-        LSTM --> BOUNDS["Optimal Tick Boundaries [P_a, P_b]"]
+    subgraph TIER2["Tier 2: Backend Protocol Gateways (Render.com)"]
+        BACKEND["Whirlpool Position Manager & Real-Time WebSocket<br/><code>https://yieldsense-backend-a8c2.onrender.com</code><br/>Docker: markmayandi/yieldsense-backend:latest"]
+        TRADING["Trading & Swap Aggregation API<br/><code>https://yieldsense-trading-api-a8c2.onrender.com</code><br/>Docker: markmayandi/yieldsense-trading-api:latest"]
     end
 
-    subgraph ENGINE["3. Position Management & Execution Backend"]
-        POOL --> YIELD["24h APY & Fee Velocity Calculator"]
-        BOUNDS --> REBAL["Position Sizing & Rebalance Planner"]
-        CONF --> RISK["Impermanent Loss & Risk Engine"]
-        REBAL --> TX["Anchor / Whirlpool Transaction Serializer"]
+    subgraph TIER3["Tier 3: Quantitative ML & Volatility Microservice (Railway.app)"]
+        ML["FastAPI ML Inference Container<br/><code>https://yieldsense-ml-api-production.up.railway.app</code><br/>Docker: markmayandi/yieldsense-ml-api:latest"]
+        subgraph ENGINES["Engines Running Inside ML Container"]
+            GARCH["GARCH(1,1) Volatility Estimator"]
+            LSTM["Bi-LSTM Price Bounds Regressor"]
+            FINBERT["FinBERT ONNX News Sentiment Analyzer"]
+            STAKING["LST Staking APY Aggregator (JupSOL)"]
+        end
+        ML --- ENGINES
     end
 
-    subgraph UI["4. Presentation & Alert Interface"]
-        TX --> DASH["React 19 Glassmorphic Dashboard"]
-        RISK --> TELEGRAM["Telegram Bot Alert Service"]
-        DASH --> WALLET["Client-Side Wallet (Phantom / Solflare)"]
+    subgraph TIER4["Tier 4: Solana Mainnet Protocol"]
+        RPC["Solana Mainnet RPC (Helius)"]
+        ORCA["Orca Whirlpools CLMM Contracts"]
     end
 
-    DATA --> ML --> ENGINE --> UI
+    WEB <-->|HTTPS / WSS| BACKEND
+    WEB <-->|HTTPS| TRADING
+    WEB <-->|HTTPS| ML
+    BACKEND <-->|RPC| ORCA
+    TRADING <-->|Quote & Route| RPC
 ```
 
 ---
@@ -136,25 +143,34 @@ $$\tau_{\text{be}} = \frac{|\text{IL}(P)|}{\text{Fee APR} / 365}$$
 
 ---
 
-## API Reference
+## Production API Reference
 
-### ML Forecasting Microservice (Port 8000)
-
-| Endpoint | Method | Description | Sample Request | Key Response |
-| :--- | :---: | :--- | :--- | :--- |
-| `/health` | `GET` | Service liveness and GPU/model state | `GET /health` | `status: "healthy"` |
-| `/predict/range` | `POST` | Computes optimal tick ranges and volatility | `{"pair": "SOL/USDC", "horizon_hours": 24}` | `lower_bound`, `upper_bound`, `confidence_pct` |
-| `/predict/volatility` | `POST` | Returns GARCH(1,1) conditional volatility | `{"pair": "SOL/USDC"}` | `sigma_t`, `volatility_regime` |
-| `/analytics/yield` | `POST` | Evaluates fee APR against projected IL | `{"pair": "SOL/USDC", "range": [180, 205]}` | `projected_apy`, `breakeven_days` |
-
-### Position Management API (Port 3001)
+### 1. Position Management API (`https://yieldsense-backend-a8c2.onrender.com`)
 
 | Endpoint | Method | Description | Sample Request | Key Response |
 | :--- | :---: | :--- | :--- | :--- |
-| `/api/pools` | `GET` | Fetches active Orca Whirlpool states | `GET /api/pools` | Array of pool objects with TVL, APR, price |
-| `/api/positions` | `GET` | Retrieves user positions for connected public key | `GET /api/positions?owner=...` | Position NFTs, tick lower, tick upper, liquidity |
-| `/api/positions/create-tx`| `POST` | Builds unsigned transaction for Whirlpool deposit | `{"pool": "...", "amountA": 1.5, "amountB": 300}` | `serialized_transaction` (base64) |
-| `/api/alerts/subscribe` | `POST` | Enrolls user Telegram chat for range alerts | `{"chat_id": "...", "position_id": "..."}` | `subscribed: true` |
+| `/health` | `GET` | Service health check and RPC status | `GET /health` | `status: "ok"` |
+| `/api/positions/{wallet}` | `GET` | Retrieves active user Whirlpool positions | `GET /api/positions/9xQ...` | Position NFTs, tick lower, tick upper, liquidity |
+| `/api/position/create-or-deposit`| `POST` | Builds unsigned transaction for Whirlpool deposit | `{"wallet": "...", "amountA": "1.5"}` | `serializedTransaction` (base64) |
+| `/api/pool/{address}` | `GET` | Fetches live Whirlpool reserves and current tick | `GET /api/pool/HJP...` | Pool token reserves, current price, fee growth |
+| `/api/pool/{address}/liquidity` | `GET` | Retrieves discrete tick array liquidity distribution | `GET /api/pool/HJP.../liquidity` | Array of tick indices and active liquidity depth |
+
+### 2. Trading Aggregator API (`https://yieldsense-trading-api-a8c2.onrender.com`)
+
+| Endpoint | Method | Description | Sample Request | Key Response |
+| :--- | :---: | :--- | :--- | :--- |
+| `/health` | `GET` | Trading service health check | `GET /health` | `status: "ok"` |
+| `/trade/quote` | `GET` | Fetches optimal swap quote across Jupiter / Orca | `GET /trade/quote?inputMint=...` | `route`, `inAmount`, `outAmount`, `priceImpact` |
+| `/trade/build` | `POST` | Serializes transaction for swap route execution | `{"inputMint": "...", "amount": "..."}` | `tx` (base64 unsigned transaction) |
+
+### 3. Quantitative ML Engine (`https://yieldsense-ml-api-production.up.railway.app`)
+
+| Endpoint | Method | Description | Sample Request | Key Response |
+| :--- | :---: | :--- | :--- | :--- |
+| `/api/health` | `GET` | Health check for ONNX volatility and FinBERT models | `GET /api/health` | `models.volatility: true`, `models.sentiment: true` |
+| `/api/farming/quick-analysis`| `POST` | Real-time volatility bounds and safety conviction | `{"token_a": "sol", "token_b": "usdc"}` | `bounds_a`, `bounds_b`, `safety_score`, `signal` |
+| `/api/news/{token}` | `GET` | FinBERT sentiment analysis of CryptoPanic feeds | `GET /api/news/sol` | `net_sentiment`, `trend: "bullish"`, `headlines` |
+| `/api/staking/apy` | `GET` | Live staking APYs for Solana LSTs (JupSOL, mSOL) | `GET /api/staking/apy` | `lsts.jupSOL.total_apy`, `source` |
 
 ---
 
@@ -164,11 +180,11 @@ $$\tau_{\text{be}} = \frac{|\text{IL}(P)|}{\text{Fee APR} / 365}$$
 | :--- | :--- |
 | **Frontend Interface** | React 19, TypeScript, Vite, Tailwind CSS, Radix UI, Lucide Icons |
 | **Backend Orchestrator** | Node.js, Express, TypeScript, WebSocket |
-| **Quantitative ML** | Python 3.10+, FastAPI, NumPy, Pandas, Scikit-learn, PyTorch, ARCH |
+| **Quantitative ML** | Python 3.10+, FastAPI, NumPy, Pandas, Scikit-learn, ONNX Runtime, FinBERT |
 | **Blockchain Infrastructure** | Solana Web3.js, Orca Whirlpools TypeScript SDK, Anchor Framework |
 | **Real-Time Storage** | Firebase Firestore, Redis |
 | **Alert Infrastructure** | Telegram Bot API, Firebase Cloud Functions |
-| **Production Hosting** | Firebase Hosting (Frontend), Render / Railway (Services) |
+| **Production Hosting** | Firebase Hosting (Frontend), Render.com (Backend & Trading), Railway.app (ML Container) |
 
 ---
 
@@ -209,25 +225,13 @@ TELEGRAM_BOT_TOKEN=your_bot_token
 
 # ML API (.env)
 PORT=8000
-BINANCE_API_KEY=your_key_if_applicable
+REDIS_URL=redis://localhost:6379
 ```
 
 ### 4. Launch Services
 ```powershell
 # Windows PowerShell automated orchestrator
 powershell -ExecutionPolicy Bypass -File start_services.ps1
-```
-
-Or run each service individually:
-```bash
-# Terminal 1: Position Management Server
-cd server && npm run dev
-
-# Terminal 2: ML Volatility Service
-cd ml-api && uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-
-# Terminal 3: React Dashboard
-cd whirlpool-dashboard && npm run dev
 ```
 
 ---
