@@ -35,5 +35,5 @@ serde = "=1.0.229"
 serde_json = "=1.0.154"
 
 [dev-dependencies.serde_with]
-version = "=3.24.0"
+version = "=3.25.0"
 features = ["json"]
